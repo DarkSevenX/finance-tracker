@@ -41,6 +41,8 @@ yarn-error.log*
 *.db-journal
 *.db-shm
 *.db-wal
+dev.db
+prisma/dev.db
 
 # typescript
 *.tsbuildinfo
