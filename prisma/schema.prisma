@@ -1,0 +1,149 @@
+// Presupuesto 50/30/20 con porcentajes editables — COP sin decimales
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  financialAccounts FinancialAccount[]
+  categories        Category[]
+  budgetSettings    BudgetSettings?
+  transactions      Transaction[]
+  bucketReallocations BucketReallocation[]
+}
+
+model BudgetSettings {
+  id         String @id @default(cuid())
+  userId     String @unique
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  needsPct   Int    @default(50)
+  wantsPct   Int    @default(30)
+  savingsPct Int    @default(20)
+}
+
+enum WalletKind {
+  CASH
+  BANK
+  CARD
+  OTHER
+}
+
+/// Cuentas reales: efectivo, bancos, tarjetas, etc.
+model FinancialAccount {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  kind      WalletKind @default(OTHER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions        Transaction[]
+  incomingTransfers Transaction[] @relation("TransferDestination")
+
+  @@map("financial_accounts")
+}
+
+enum CategoryKind {
+  INCOME
+  EXPENSE
+}
+
+enum BudgetBucket {
+  NEEDS
+  WANTS
+  SAVINGS
+}
+
+model Category {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  kind      CategoryKind
+  parentId  String?
+  parent    Category?    @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Category[]   @relation("CategoryTree")
+  /// Solo categorías de gasto; null en ingresos y en subcategorías (heredan del padre)
+  bucket    BudgetBucket?
+  createdAt DateTime     @default(now())
+
+  transactions Transaction[]
+
+  @@index([userId, kind])
+}
+
+enum TransactionKind {
+  INCOME
+  EXPENSE
+  /// Traspaso entre cuentas (no es ingreso ni gasto del presupuesto)
+  TRANSFER
+}
+
+enum IncomeAllocationMode {
+  SPLIT
+  NEEDS_ONLY
+  WANTS_ONLY
+  SAVINGS_ONLY
+}
+
+/// Mueve disponibilidad entre bloques del mes sin tocar cuentas ni ingresos/gastos.
+model BucketReallocation {
+  id         String       @id @default(cuid())
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  monthStart DateTime
+  fromBucket BudgetBucket
+  toBucket   BudgetBucket
+  amount     Int
+  createdAt  DateTime     @default(now())
+
+  @@index([userId, monthStart])
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId String
+  account   FinancialAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  /// Solo TRANSFER: cuenta destino (origen = accountId)
+  toAccountId String?
+  toAccount   FinancialAccount? @relation("TransferDestination", fields: [toAccountId], references: [id], onDelete: Cascade)
+
+  kind        TransactionKind
+  amount      Int
+  title       String
+  description String?
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  date DateTime
+
+  /// Solo ingresos: cómo reparte al presupuesto 50/30/20
+  allocationMode IncomeAllocationMode?
+  allocatedNeeds   Int?
+  allocatedWants   Int?
+  allocatedSavings Int?
+
+  /// Solo gasto sin categoría: bloque (necesidades / deseos / ahorros). Con categoría se ignora.
+  expenseBucket BudgetBucket?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, date])
+  @@index([accountId, date])
+  @@index([toAccountId])
+}
