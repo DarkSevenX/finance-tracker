@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 import { Card } from "@/components/ui/card";
 
@@ -24,7 +25,9 @@ export default async function LoginPage({
           </p>
         ) : null}
         <Card className="mt-8">
-          <LoginForm />
+          <Suspense fallback={<p className="text-sm text-zinc-500">Cargando…</p>}>
+            <LoginForm />
+          </Suspense>
         </Card>
       </div>
     </div>

@@ -5,7 +5,8 @@ import { getToken } from "next-auth/jwt";
 export async function middleware(req: NextRequest) {
   const token = await getToken({
     req,
-    secret: process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET,
+    // Misma prioridad que en auth.ts (NextAuth)
+    secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   });
   const loggedIn = !!token;
   const { pathname } = req.nextUrl;

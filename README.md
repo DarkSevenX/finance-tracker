@@ -94,8 +94,9 @@ Abre [http://localhost:3000](http://localhost:3000). La landing redirige a usuar
 | Variable | Obligatoriedad | Descripción |
 |----------|----------------|-------------|
 | `DATABASE_URL` | Sí | Cadena de conexión SQLite local, p. ej. `file:./dev.db`. Prisma la usa en el `schema.prisma` y para migraciones locales. |
-| `AUTH_SECRET` | Sí en producción | Secreto para Auth.js; usa un valor largo y aleatorio. |
-| `NEXTAUTH_SECRET` | Recomendado | El middleware usa `NEXTAUTH_SECRET` o, en su defecto, `AUTH_SECRET` para validar el JWT. Conviene definir ambos con el **mismo** valor en producción para evitar discrepancias. |
+| `AUTH_SECRET` | Sí en producción | Secreto para firmar el JWT; valor largo y aleatorio. |
+| `NEXTAUTH_SECRET` | Recomendado | Compatibilidad con NextAuth; debe ser el **mismo valor** que `AUTH_SECRET`. El middleware y `auth.ts` usan `AUTH_SECRET` o, si falta, `NEXTAUTH_SECRET`. |
+| `AUTH_URL` | Sí en producción (Vercel, etc.) | URL pública del sitio **sin barra final**, p. ej. `https://boo-money.vercel.app`. Si falta, las cookies de sesión pueden no aplicarse bien y el login parece “no redirigir” al dashboard. |
 | `TURSO_DATABASE_URL` | Opcional | URL `libsql://...` de la base en Turso. Si está definida junto con el token, la aplicación usa el adaptador libSQL en tiempo de ejecución. |
 | `TURSO_AUTH_TOKEN` | Opcional | Token de autenticación de Turso; obligatorio si usas `TURSO_DATABASE_URL` en runtime. |
 

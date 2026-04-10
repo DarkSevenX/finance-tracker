@@ -2,13 +2,19 @@
 
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/cn";
 import { btnPrimaryClass, fieldClass, labelClass } from "@/lib/ui-classes";
 
+/** Evita open-redirect: solo rutas relativas internas. */
+function safeCallbackUrl(raw: string | null): string {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return "/dashboard";
+  return raw;
+}
+
 export function LoginForm() {
-  const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -29,8 +35,9 @@ export function LoginForm() {
       setError("Correo o contraseña incorrectos.");
       return;
     }
-    router.push("/dashboard");
-    router.refresh();
+    const next = safeCallbackUrl(searchParams.get("callbackUrl"));
+    // Recarga completa para que el middleware reciba la cookie de sesión (evita carreras en prod).
+    window.location.assign(next);
   }
 
   return (
