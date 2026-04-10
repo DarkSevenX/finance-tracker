@@ -177,7 +177,7 @@ src/
 
 ## Autenticación y rutas
 
-- **Proxy** (`src/proxy.ts`, sustituye a `middleware.ts` en Next.js 16): las rutas bajo `/dashboard` requieren JWT válido; si no hay sesión, redirección a `/login` con `callbackUrl`. Si ya hay sesión, `/login` y `/register` redirigen a `/dashboard`.
+- **Proxy** (`src/proxy.ts`, sustituye a `middleware.ts` en Next.js 16): las rutas bajo `/dashboard` requieren JWT válido; si no hay sesión, redirección a `/login` con `callbackUrl`. Si ya hay sesión, `/login` y `/register` redirigen a `/dashboard`. En HTTPS, `getToken` debe usar `secureCookie: true` para leer la cookie `__Secure-authjs.session-token` (si no, la sesión parece vacía y el login queda en bucle en producción).
 - **Credenciales**: validación en `authorize` contra la tabla `User`; contraseñas nunca en texto plano.
 - **API de registro** (`POST /api/register`): crea usuario, hash de contraseña y `BudgetSettings` por defecto (50/30/20).
 
