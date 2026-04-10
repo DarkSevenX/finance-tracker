@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-export async function middleware(req: NextRequest) {
+/** Next.js 16+: sustituye a middleware.ts (ver docs middleware-to-proxy). */
+export async function proxy(req: NextRequest) {
   const token = await getToken({
     req,
-    // Misma prioridad que en auth.ts (NextAuth)
     secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   });
   const loggedIn = !!token;
