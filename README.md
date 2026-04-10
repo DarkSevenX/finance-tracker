@@ -95,7 +95,7 @@ Abre [http://localhost:3000](http://localhost:3000). La landing redirige a usuar
 |----------|----------------|-------------|
 | `DATABASE_URL` | Sí | Cadena de conexión SQLite local, p. ej. `file:./dev.db`. Prisma la usa en el `schema.prisma` y para migraciones locales. |
 | `AUTH_SECRET` | Sí en producción | Secreto para firmar el JWT; valor largo y aleatorio. |
-| `NEXTAUTH_SECRET` | Recomendado | Compatibilidad con NextAuth; debe ser el **mismo valor** que `AUTH_SECRET`. El middleware y `auth.ts` usan `AUTH_SECRET` o, si falta, `NEXTAUTH_SECRET`. |
+| `NEXTAUTH_SECRET` | Recomendado | Compatibilidad con NextAuth; debe ser el **mismo valor** que `AUTH_SECRET`. El proxy de borde (`src/proxy.ts`) y `auth.ts` usan `AUTH_SECRET` o, si falta, `NEXTAUTH_SECRET`. |
 | `AUTH_URL` | Sí en producción (Vercel, etc.) | URL pública del sitio **sin barra final**, p. ej. `https://boo-money.vercel.app`. Si falta, las cookies de sesión pueden no aplicarse bien y el login parece “no redirigir” al dashboard. |
 | `TURSO_DATABASE_URL` | Opcional | URL `libsql://...` de la base en Turso. Si está definida junto con el token, la aplicación usa el adaptador libSQL en tiempo de ejecución. |
 | `TURSO_AUTH_TOKEN` | Opcional | Token de autenticación de Turso; obligatorio si usas `TURSO_DATABASE_URL` en runtime. |
@@ -170,14 +170,14 @@ src/
   auth.ts                # Configuración NextAuth
   components/            # UI reutilizable y formularios
   lib/                   # Prisma, utilidades de presupuesto, fechas, UI
-  middleware.ts          # Protección de /dashboard y redirecciones de auth
+  proxy.ts               # Next.js 16: protección de /dashboard y redirecciones de auth
 ```
 
 ---
 
 ## Autenticación y rutas
 
-- **Middleware** (`src/middleware.ts`): las rutas bajo `/dashboard` requieren JWT válido; si no hay sesión, redirección a `/login` con `callbackUrl`. Si ya hay sesión, `/login` y `/register` redirigen a `/dashboard`.
+- **Proxy** (`src/proxy.ts`, sustituye a `middleware.ts` en Next.js 16): las rutas bajo `/dashboard` requieren JWT válido; si no hay sesión, redirección a `/login` con `callbackUrl`. Si ya hay sesión, `/login` y `/register` redirigen a `/dashboard`.
 - **Credenciales**: validación en `authorize` contra la tabla `User`; contraseñas nunca en texto plano.
 - **API de registro** (`POST /api/register`): crea usuario, hash de contraseña y `BudgetSettings` por defecto (50/30/20).
 
