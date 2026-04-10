@@ -143,7 +143,7 @@ La instancia de Prisma (`src/lib/prisma.ts`) usa el adaptador **solo** si ambas 
 
 | Script | Descripción |
 |--------|-------------|
-| `npm run dev` | Servidor de desarrollo Next.js. |
+| `npm run dev` | Servidor de desarrollo (Webpack; mismo motivo que el build, por next-pwa). |
 | `npm run build` | Compilación de producción (Webpack; incluye PWA/service worker). |
 | `npm run icons:pwa` | Regenera `public/icons/icon-*.png` desde `public/icons/icon.svg`. |
 | `npm run start` | Sirve la build (tras `build`). |

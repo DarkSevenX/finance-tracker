@@ -114,7 +114,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Ghost className="size-4 shrink-0 text-emerald-500/85" aria-hidden />
               <p className="truncate text-[15px] font-semibold tracking-tight text-zinc-100">Boo Money</p>
             </div>
-            <p className="truncate pl-6 text-[11px] text-zinc-500">50/30/20</p>
+            {/* <p className="truncate pl-6 text-[11px] text-zinc-500">50/30/20</p> */}
           </div>
         </header>
 

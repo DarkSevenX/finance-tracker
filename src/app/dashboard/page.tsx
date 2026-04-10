@@ -62,8 +62,10 @@ export default async function DashboardPage({
   return (
     <div className="w-full min-w-0 space-y-6 sm:space-y-8">
       <PageHeader
-        title="Resumen"
-        description="Saldo global y presupuesto del mes según ingresos registrados y regla configurada."
+        // title="Resumen"
+        // description="Saldo global y presupuesto del mes según ingresos registrados y regla configurada."
+        title=""
+        description=""
         action={<MonthNav year={y} month={m} />}
       />
 
