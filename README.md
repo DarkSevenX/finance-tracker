@@ -32,6 +32,7 @@ La interfaz está en español y el flujo principal está bajo `/dashboard` con a
 - **Dashboard**: resumen mensual, tarjetas por bloque, gráficos de ingresos/gastos, tabla de movimientos, navegación por mes.
 - **Reasignación entre bloques** en un mismo mes (mover disponibilidad entre necesidades, deseos y ahorros sin crear ingresos ni gastos ficticios).
 - **Moneda**: montos enteros en COP.
+- **PWA**: instalable en móvil y escritorio (manifest + service worker en build de producción; requiere **HTTPS** en el servidor).
 
 ---
 
@@ -41,6 +42,7 @@ La interfaz está en español y el flujo principal está bajo `/dashboard` con a
 |------|------------|
 | Framework | [Next.js](https://nextjs.org/) 16 (App Router, React Server Components donde aplica) |
 | UI | React 19, Tailwind CSS 4 |
+| PWA | [@ducanh2912/next-pwa](https://github.com/DuCanhGH/next-pwa) (Workbox) |
 | Formularios / validación | react-hook-form, Zod |
 | Base de datos | SQLite (local) o [Turso](https://turso.tech/) (libSQL en la nube) |
 | ORM | Prisma 6 con adaptador opcional `@prisma/adapter-libsql` para Turso |
@@ -142,7 +144,8 @@ La instancia de Prisma (`src/lib/prisma.ts`) usa el adaptador **solo** si ambas 
 | Script | Descripción |
 |--------|-------------|
 | `npm run dev` | Servidor de desarrollo Next.js. |
-| `npm run build` | Compilación de producción. |
+| `npm run build` | Compilación de producción (Webpack; incluye PWA/service worker). |
+| `npm run icons:pwa` | Regenera `public/icons/icon-*.png` desde `public/icons/icon.svg`. |
 | `npm run start` | Sirve la build (tras `build`). |
 | `npm run lint` | ESLint. |
 | `npm run db:turso:migrate` | Aplica todas las migraciones SQL locales a la base Turso configurada en `.env`. |
