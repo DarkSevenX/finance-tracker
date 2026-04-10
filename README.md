@@ -1,4 +1,4 @@
-# Finance Tracker (presupuesto personal en COP)
+# Boo Money (presupuesto personal en COP)
 
 Aplicación web para registrar ingresos y gastos en **pesos colombianos (COP)**, con presupuesto por la regla **50/30/20** (necesidades, deseos, ahorros) y porcentajes **editables** por usuario. Incluye varias **cuentas** (efectivo, banco, tarjeta), **categorías** con subcategorías opcionales, **traspasos** entre cuentas y ajustes manuales entre bloques del presupuesto por mes.
 

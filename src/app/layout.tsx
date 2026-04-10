@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Finanzas COP — 50/30/20",
-  description: "Ingresos, gastos y presupuesto con cuentas y categorías.",
+  title: "Boo Money — 50/30/20",
+  description: "Boo Money: ingresos, gastos y presupuesto con cuentas y categorías.",
 };
 
 export default async function RootLayout({

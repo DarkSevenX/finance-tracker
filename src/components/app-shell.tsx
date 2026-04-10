@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Ghost, Menu, X } from "lucide-react";
 import { signOutAction } from "@/actions/auth";
 import { cn } from "@/lib/cn";
 
@@ -16,9 +16,9 @@ const links = [
 
 function Branding() {
   return (
-    <div className="px-1">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-600">Finanzas</p>
-      <p className="mt-0.5 text-sm font-semibold text-zinc-100">COP</p>
+    <div className="flex items-center gap-2.5 px-1">
+      <Ghost className="size-[18px] shrink-0 text-emerald-500/85" aria-hidden />
+      <p className="text-[15px] font-semibold tracking-tight text-zinc-100">Boo Money</p>
     </div>
   );
 }
@@ -110,8 +110,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="sr-only">Abrir menú</span>
           </button>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-zinc-100">Finanzas COP</p>
-            <p className="truncate text-[11px] text-zinc-500">50/30/20</p>
+            <div className="flex min-w-0 items-center gap-2">
+              <Ghost className="size-4 shrink-0 text-emerald-500/85" aria-hidden />
+              <p className="truncate text-[15px] font-semibold tracking-tight text-zinc-100">Boo Money</p>
+            </div>
+            <p className="truncate pl-6 text-[11px] text-zinc-500">50/30/20</p>
           </div>
         </header>
 
