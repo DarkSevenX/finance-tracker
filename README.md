@@ -1,6 +1,6 @@
-# Boo Money (presupuesto personal en COP)
+# Boo Money (presupuesto personal)
 
-Aplicación web para registrar ingresos y gastos en **pesos colombianos (COP)**, con presupuesto por la regla **50/30/20** (necesidades, deseos, ahorros) y porcentajes **editables** por usuario. Incluye varias **cuentas** (efectivo, banco, tarjeta), **categorías** con subcategorías opcionales, **traspasos** entre cuentas y ajustes manuales entre bloques del presupuesto por mes.
+Aplicación web para registrar ingresos y gastos, con presupuesto por la regla **50/30/20** (necesidades, deseos, ahorros) y porcentajes **editables** por usuario. Incluye varias **cuentas** (efectivo, banco, tarjeta), **categorías** con subcategorías opcionales, **traspasos** entre cuentas y ajustes manuales entre bloques del presupuesto por mes.
 
 La interfaz está en español y el flujo principal está bajo `/dashboard` con autenticación por correo y contraseña.
 
