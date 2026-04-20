@@ -18,8 +18,7 @@ La interfaz está en español y el flujo principal está bajo `/dashboard` con a
 8. [Estructura del repositorio](#estructura-del-repositorio)
 9. [Autenticación y rutas](#autenticación-y-rutas)
 10. [Modelo de datos y reglas de negocio](#modelo-de-datos-y-reglas-de-negocio)
-11. [Despliegue](#despliegue)
-12. [Licencia](#licencia)
+11. [Licencia](#licencia)
 
 ---
 
@@ -205,16 +204,6 @@ Rutas principales de la aplicación autenticada:
 
 La lógica de agregación, saldos y presupuesto está repartida en `src/lib/` (por ejemplo `dashboard-data.ts`, `month-budget-envelope.ts`, `budget-alloc.ts`, `account-balance.ts`).
 
----
-
-## Despliegue
-
-1. Configura las variables de entorno en tu plataforma (Vercel, Railway, VPS con Node, etc.).
-2. Con Turso: crea la base, obtén URL y token, ejecuta `npm run db:turso:migrate` desde un entorno con acceso a esas variables **o** aplica el SQL equivalente con la herramienta que prefieras.
-3. Asegura `AUTH_SECRET` y `NEXTAUTH_SECRET` con valores seguros y únicos.
-4. Ejecuta `npm run build` y `npm run start` (o el comando que use el proveedor).
-
-Comprueba que la versión de Node del hosting sea compatible con Next.js 16 y Prisma 6.
 
 ---
 
