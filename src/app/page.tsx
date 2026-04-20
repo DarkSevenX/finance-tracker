@@ -4,26 +4,9 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { BudgetDonutSlot } from "@/components/landing/budget-donut-slot";
 import { GhostField } from "@/components/landing/ghost-field";
+import { LandingEducation } from "@/components/landing/landing-education";
 import { btnPrimaryClass, btnSecondaryClass } from "@/lib/ui-classes";
 import { cn } from "@/lib/cn";
-
-const features = [
-  {
-    n: "01",
-    title: "Cuentas",
-    body: "Efectivo, bancos y tarjetas con saldo por cuenta.",
-  },
-  {
-    n: "02",
-    title: "50/30/20",
-    body: "Porcentajes editables e ingresos sin reparto si quieres.",
-  },
-  {
-    n: "03",
-    title: "Categorías",
-    body: "Subcategorías opcionales para ordenar gastos.",
-  },
-] as const;
 
 export default async function Home() {
   const session = await auth();
@@ -89,40 +72,7 @@ export default async function Home() {
           </div>
         </div>
 
-        <section className="shrink-0 border-t border-zinc-800/90 pt-14 sm:pt-20 lg:mt-8 lg:pt-20">
-          <div className="mx-auto max-w-2xl text-center sm:mx-0 sm:max-w-none sm:text-left">
-            <h2 className="font-mono text-[10px] uppercase tracking-[0.3em] text-emerald-500/85">
-              Qué puedes hacer
-            </h2>
-            <p className="mt-2 text-sm text-zinc-500">
-              Tres pilares del flujo: dónde está el dinero, cómo lo repartes y cómo lo nombras.
-            </p>
-          </div>
-
-          <ul className="mt-12 space-y-14 sm:mt-16">
-            {features.map((item) => (
-              <li
-                key={item.n}
-                className="group border-l-2 border-zinc-800 pl-7 transition-[border-color] duration-300 hover:border-emerald-500/70 sm:pl-10"
-              >
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-10">
-                  <span
-                    className="font-mono text-3xl font-medium tabular-nums text-emerald-600/50 transition-colors duration-300 group-hover:text-emerald-400/80 sm:text-4xl"
-                    aria-hidden
-                  >
-                    {item.n}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-lg font-medium tracking-tight text-zinc-100 sm:text-xl">{item.title}</h3>
-                    <p className="mt-2 max-w-md text-sm leading-relaxed text-zinc-500 sm:text-[15px]">
-                      {item.body}
-                    </p>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <LandingEducation />
       </main>
     </div>
   );
