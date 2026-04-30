@@ -26,6 +26,9 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
+  verification: {
+    google: "qIuDkf0lkdFCYMcr8IERudqukYaMcl2QNEeKMJwBk-E",
+  },
   icons: {
     icon: [
       { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
