@@ -1,6 +1,6 @@
-import type { BudgetBucket, Category } from "@prisma/client";
+import type { BudgetBucket, CategoryModel } from "@/lib/db/schema";
 
-export function categoryLabel(c: Category, byId: Map<string, Category>): string {
+export function categoryLabel(c: CategoryModel, byId: Map<string, CategoryModel>): string {
   if (!c.parentId) return c.name;
   const p = byId.get(c.parentId);
   return p ? `${p.name} › ${c.name}` : c.name;
@@ -8,10 +8,10 @@ export function categoryLabel(c: Category, byId: Map<string, Category>): string 
 
 /** Bloque de presupuesto resuelto (subcategorías heredan del padre). */
 export function resolveExpenseCategoryBucket(
-  c: Category,
-  byId: Map<string, Category>
+  c: CategoryModel,
+  byId: Map<string, CategoryModel>
 ): BudgetBucket | null {
-  let cur: Category | undefined = c;
+  let cur: CategoryModel | undefined = c;
   const vis = new Set<string>();
   while (cur) {
     if (vis.has(cur.id)) return null;
@@ -23,7 +23,7 @@ export function resolveExpenseCategoryBucket(
   return null;
 }
 
-export function expenseOptions(all: Category[]) {
+export function expenseOptions(all: CategoryModel[]) {
   const list = all.filter((c) => c.kind === "EXPENSE");
   const byId = new Map(list.map((c) => [c.id, c]));
   return list
@@ -32,7 +32,7 @@ export function expenseOptions(all: Category[]) {
 }
 
 /** Para formularios de gasto: etiqueta + bloque para filtrar por necesidades/deseos/ahorros. */
-export function expenseCategoriesForForm(all: Category[]) {
+export function expenseCategoriesForForm(all: CategoryModel[]) {
   const list = all.filter((c) => c.kind === "EXPENSE");
   const byId = new Map(list.map((c) => [c.id, c]));
   return list
@@ -45,7 +45,7 @@ export function expenseCategoriesForForm(all: Category[]) {
     .sort((a, b) => a.label.localeCompare(b.label, "es"));
 }
 
-export function incomeOptions(all: Category[]) {
+export function incomeOptions(all: CategoryModel[]) {
   const list = all.filter((c) => c.kind === "INCOME");
   const byId = new Map(list.map((c) => [c.id, c]));
   return list

@@ -13,3 +13,4 @@ export function parseCOPInput(raw: string): number {
   if (!Number.isFinite(n) || n < 0) return 0;
   return Math.round(n);
 }
+

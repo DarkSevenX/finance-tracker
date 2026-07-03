@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import type { BudgetBucket } from "@prisma/client";
+import type { BudgetBucket } from "@/lib/db/schema";
 import { Home, PiggyBank, Sparkles } from "lucide-react";
 import { createExpense } from "@/actions/transaction-mutations";
 import { bucketLabel } from "@/lib/labels";
@@ -218,3 +218,4 @@ export function TransactionExpenseForm({
     </form>
   );
 }
+

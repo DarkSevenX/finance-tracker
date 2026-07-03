@@ -30,3 +30,4 @@ export function MonthNav({ year, month }: { year: number; month: number }) {
     </div>
   );
 }
+

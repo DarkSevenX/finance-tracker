@@ -124,3 +124,4 @@ export const conclusionSection = {
     "Puedes empezar poco a poco, adaptar la plantilla a tu vida y celebrar tus progresos.",
   ],
 } as const;
+

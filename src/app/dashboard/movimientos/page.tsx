@@ -10,26 +10,26 @@ import { Card } from "@/components/ui/card";
 import { categoryLabel, expenseCategoriesForForm, incomeOptions } from "@/lib/category-options";
 import { allocationLabel, bucketLabel, walletLabel } from "@/lib/labels";
 import { formatCOP } from "@/lib/money";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { FinancialAccount, Category, type BudgetBucket } from "@/lib/db/schema";
+import { eq, asc } from "drizzle-orm";
 import { tableHeadClass, tableRowClass } from "@/lib/ui-classes";
-import type { BudgetBucket } from "@prisma/client";
 
 export default async function MovimientosPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
   const [accounts, categories, transactions] = await Promise.all([
-    prisma.financialAccount.findMany({
-      where: { userId: session.user.id },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true, kind: true },
-    }),
-    prisma.category.findMany({ where: { userId: session.user.id } }),
-    prisma.transaction.findMany({
-      where: { userId: session.user.id },
-      orderBy: { date: "desc" },
-      take: 150,
-      include: { category: true, account: true, toAccount: true },
+    db.select({ id: FinancialAccount.id, name: FinancialAccount.name, kind: FinancialAccount.kind })
+      .from(FinancialAccount)
+      .where(eq(FinancialAccount.userId, session.user.id))
+      .orderBy(asc(FinancialAccount.name)),
+    db.select().from(Category).where(eq(Category.userId, session.user.id)),
+    db.query.Transaction.findMany({
+      where: (t, { eq }) => eq(t.userId, session.user.id),
+      orderBy: (t, { desc }) => [desc(t.date)],
+      limit: 150,
+      with: { category: true, account: true, toAccount: true },
     }),
   ]);
 
@@ -171,3 +171,4 @@ export default async function MovimientosPage() {
     </div>
   );
 }
+

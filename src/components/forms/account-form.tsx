@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import type { WalletKind } from "@prisma/client";
+import type { WalletKind } from "@/lib/db/schema";
 import { createAccount } from "@/actions/accounts";
 import { cn } from "@/lib/cn";
 import { btnPrimaryClass, fieldClass, labelClass } from "@/lib/ui-classes";
@@ -68,3 +68,4 @@ export function AccountForm() {
     </form>
   );
 }
+

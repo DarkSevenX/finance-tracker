@@ -1,6 +1,5 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { splitIncome } from "@/lib/budget-alloc";
@@ -8,13 +7,10 @@ import { bucketLabel } from "@/lib/labels";
 import type { BucketKey } from "@/lib/month-budget-envelope";
 import { getAccountBalance } from "@/lib/account-balance";
 import { computeMonthBucketEnvelope } from "@/lib/month-budget-envelope";
-import { prisma } from "@/lib/prisma";
-import type { BudgetBucket, IncomeAllocationMode } from "@prisma/client";
+import { db } from "@/lib/db";
+import { Category, type CategoryModel, FinancialAccount, BudgetSettings, Transaction, type BudgetBucket, type IncomeAllocationMode } from "@/lib/db/schema";
+import { eq, and } from "drizzle-orm";
 
-/**
- * Inserción vía SQL parametrizado: evita PrismaClientValidationError al mezclar
- * FK escalares con categoría opcional (bug de validación en create() en algunos entornos / caché vieja).
- */
 export async function createIncome(input: {
   title?: string;
   description?: string | null;
@@ -31,20 +27,22 @@ export async function createIncome(input: {
 
   const cid = input.categoryId?.trim() || null;
   if (cid) {
-    const cat = await prisma.category.findFirst({
-      where: { id: cid, userId: session.user.id, kind: "INCOME" },
-    });
-    if (!cat) return { error: "Categoría de ingreso inválida." as const };
+    const catResult = await db.select().from(Category)
+      .where(and(eq(Category.id, cid), eq(Category.userId, session.user.id), eq(Category.kind, "INCOME")))
+      .limit(1);
+    if (!catResult[0]) return { error: "Categoría de ingreso inválida." as const };
   }
 
-  const acc = await prisma.financialAccount.findFirst({
-    where: { id: input.accountId, userId: session.user.id },
-  });
-  if (!acc) return { error: "Cuenta inválida." as const };
+  const accResult = await db.select().from(FinancialAccount)
+    .where(and(eq(FinancialAccount.id, input.accountId), eq(FinancialAccount.userId, session.user.id)))
+    .limit(1);
+  if (!accResult[0]) return { error: "Cuenta inválida." as const };
 
-  const settings = await prisma.budgetSettings.findUnique({
-    where: { userId: session.user.id },
-  });
+  const settingsResult = await db.select().from(BudgetSettings)
+    .where(eq(BudgetSettings.userId, session.user.id))
+    .limit(1);
+  const settings = settingsResult[0];
+  
   const needsPct = settings?.needsPct ?? 50;
   const wantsPct = settings?.wantsPct ?? 30;
   const savingsPct = settings?.savingsPct ?? 20;
@@ -57,42 +55,24 @@ export async function createIncome(input: {
     savingsPct
   );
 
-  const id = randomUUID();
   const title = input.title?.trim() || "Ingreso";
   const description = input.description?.trim() || null;
   const date = new Date(input.date);
 
-  await prisma.$executeRaw`
-    INSERT INTO "Transaction" (
-      "id",
-      "userId",
-      "accountId",
-      "kind",
-      "amount",
-      "title",
-      "description",
-      "categoryId",
-      "date",
-      "allocationMode",
-      "allocatedNeeds",
-      "allocatedWants",
-      "allocatedSavings"
-    ) VALUES (
-      ${id},
-      ${session.user.id},
-      ${input.accountId},
-      'INCOME',
-      ${amount},
-      ${title},
-      ${description},
-      ${cid},
-      ${date},
-      ${input.allocationMode},
-      ${needs},
-      ${wants},
-      ${savings}
-    )
-  `;
+  await db.insert(Transaction).values({
+    userId: session.user.id,
+    accountId: input.accountId,
+    kind: "INCOME",
+    amount,
+    title,
+    description,
+    categoryId: cid,
+    date,
+    allocationMode: input.allocationMode,
+    allocatedNeeds: needs,
+    allocatedWants: wants,
+    allocatedSavings: savings,
+  });
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/movimientos");
@@ -117,16 +97,16 @@ export async function createExpense(input: {
 
   const cid = input.categoryId?.trim() || null;
   if (cid) {
-    const cat = await prisma.category.findFirst({
-      where: { id: cid, userId: session.user.id, kind: "EXPENSE" },
-    });
-    if (!cat) return { error: "Categoría de gasto inválida." as const };
+    const catResult = await db.select().from(Category)
+      .where(and(eq(Category.id, cid), eq(Category.userId, session.user.id), eq(Category.kind, "EXPENSE")))
+      .limit(1);
+    if (!catResult[0]) return { error: "Categoría de gasto inválida." as const };
   }
 
-  const acc = await prisma.financialAccount.findFirst({
-    where: { id: input.accountId, userId: session.user.id },
-  });
-  if (!acc) return { error: "Cuenta inválida." as const };
+  const accResult = await db.select().from(FinancialAccount)
+    .where(and(eq(FinancialAccount.id, input.accountId), eq(FinancialAccount.userId, session.user.id)))
+    .limit(1);
+  if (!accResult[0]) return { error: "Cuenta inválida." as const };
 
   const accountBalance = await getAccountBalance(session.user.id, input.accountId);
   if (accountBalance < amount) {
@@ -159,44 +139,21 @@ export async function createExpense(input: {
     return { error: msg };
   }
 
-  const id = randomUUID();
   const title = input.title?.trim() || "Gasto";
   const description = input.description?.trim() || null;
   const expenseBucket = cid ? null : (input.expenseBucket ?? "NEEDS");
 
-  await prisma.$executeRaw`
-    INSERT INTO "Transaction" (
-      "id",
-      "userId",
-      "accountId",
-      "kind",
-      "amount",
-      "title",
-      "description",
-      "categoryId",
-      "date",
-      "allocationMode",
-      "allocatedNeeds",
-      "allocatedWants",
-      "allocatedSavings",
-      "expenseBucket"
-    ) VALUES (
-      ${id},
-      ${session.user.id},
-      ${input.accountId},
-      'EXPENSE',
-      ${amount},
-      ${title},
-      ${description},
-      ${cid},
-      ${date},
-      NULL,
-      NULL,
-      NULL,
-      NULL,
-      ${expenseBucket}
-    )
-  `;
+  await db.insert(Transaction).values({
+    userId: session.user.id,
+    accountId: input.accountId,
+    kind: "EXPENSE",
+    amount,
+    title,
+    description,
+    categoryId: cid,
+    date,
+    expenseBucket,
+  });
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/movimientos");
@@ -207,11 +164,13 @@ export async function createExpense(input: {
 export async function deleteTransaction(id: string) {
   const session = await auth();
   if (!session?.user?.id) return { error: "No autorizado" as const };
-  await prisma.transaction.deleteMany({
-    where: { id, userId: session.user.id },
-  });
+  
+  await db.delete(Transaction).where(and(eq(Transaction.id, id), eq(Transaction.userId, session.user.id)));
+  
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/movimientos");
   revalidatePath("/dashboard/cuentas");
   return { ok: true as const };
 }
+
+

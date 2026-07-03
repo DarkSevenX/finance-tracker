@@ -1,7 +1,7 @@
-import type { BudgetBucket, Category } from "@prisma/client";
+import type { BudgetBucket, CategoryModel } from "@/lib/db/schema";
 
 /** Resuelve el bloque del presupuesto para una categoría de gasto (árbol en memoria). */
-export function buildBucketResolver(categories: Category[]) {
+export function buildBucketResolver(categories: CategoryModel[]) {
   const byId = new Map(categories.map((c) => [c.id, c]));
   return function resolve(catId: string): BudgetBucket {
     let cur = byId.get(catId);

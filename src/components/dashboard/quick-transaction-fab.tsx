@@ -7,7 +7,7 @@ import { InternalTransfersPanel } from "@/components/dashboard/internal-transfer
 import { TransactionExpenseForm } from "@/components/forms/transaction-expense-form";
 import { TransactionIncomeForm } from "@/components/forms/transaction-income-form";
 import { cn } from "@/lib/cn";
-import type { BudgetBucket } from "@prisma/client";
+import type { BudgetBucket } from "@/lib/db/schema";
 
 export function QuickTransactionFab({
   accounts,
@@ -209,3 +209,4 @@ export function QuickTransactionFab({
     </>
   );
 }
+

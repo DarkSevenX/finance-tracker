@@ -1,16 +1,17 @@
-import type { BudgetBucket, IncomeAllocationMode } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import type { BudgetBucket, IncomeAllocationMode } from "@/lib/db/schema";
 import { endOfMonth, startOfMonth } from "date-fns";
 import { splitIncome } from "@/lib/budget-alloc";
 import { buildBucketResolver } from "@/lib/budget-bucket-resolve";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { BudgetSettings, Category, Transaction, BucketReallocation } from "@/lib/db/schema";
+import { eq, and, gte, lte, inArray } from "drizzle-orm";
 
 export type BucketKey = "NEEDS" | "WANTS" | "SAVINGS";
 
 /** Aplica reasignaciones entre bloques del mes sobre el remanente base (presupuesto − gasto). */
 export function applyBucketReallocations(
   baseRemaining: Record<BucketKey, number>,
-  shifts: { fromBucket: BudgetBucket; toBucket: BudgetBucket; amount: number }[]
+  shifts: { fromBucket: string; toBucket: string; amount: number }[]
 ): Record<BucketKey, number> {
   const r = { ...baseRemaining };
   for (const s of shifts) {
@@ -34,33 +35,31 @@ export async function computeMonthBucketEnvelope(
   const start = startOfMonth(monthDate);
   const end = endOfMonth(monthDate);
 
-  const [settings, categories, txMonth] = await Promise.all([
-    prisma.budgetSettings.findUnique({ where: { userId } }),
-    prisma.category.findMany({ where: { userId } }),
-    /** SQL directo: evita fallos si el cliente de Prisma en caché (p. ej. Turbopack) va desfasado respecto al esquema con `expenseBucket`. */
-    prisma.$queryRaw<
-      Array<{
-        kind: string;
-        amount: number;
-        categoryId: string | null;
-        expenseBucket: string | null;
-        allocationMode: string | null;
-      }>
-    >(Prisma.sql`
-      SELECT "kind", "amount", "categoryId", "expenseBucket", "allocationMode"
-      FROM "Transaction"
-      WHERE "userId" = ${userId}
-        AND "date" >= ${start}
-        AND "date" <= ${end}
-        AND "kind" IN ('INCOME', 'EXPENSE')
-    `),
+  const [settingsList, categories, txMonth] = await Promise.all([
+    db.select().from(BudgetSettings).where(eq(BudgetSettings.userId, userId)).limit(1),
+    db.select().from(Category).where(eq(Category.userId, userId)),
+    db.select({
+      kind: Transaction.kind,
+      amount: Transaction.amount,
+      categoryId: Transaction.categoryId,
+      expenseBucket: Transaction.expenseBucket,
+      allocationMode: Transaction.allocationMode
+    })
+    .from(Transaction)
+    .where(and(
+      eq(Transaction.userId, userId),
+      gte(Transaction.date, start),
+      lte(Transaction.date, end),
+      inArray(Transaction.kind, ["INCOME", "EXPENSE"])
+    )),
   ]);
 
+  const settings = settingsList[0];
   const needsPct = settings?.needsPct ?? 50;
   const wantsPct = settings?.wantsPct ?? 30;
   const savingsPct = settings?.savingsPct ?? 20;
 
-  const resolveBucket = buildBucketResolver(categories);
+  const resolveBucket = buildBucketResolver(categories as any);
   const budget = { NEEDS: 0, WANTS: 0, SAVINGS: 0 };
   const spent: Record<BucketKey, number> = { NEEDS: 0, WANTS: 0, SAVINGS: 0 };
 
@@ -92,12 +91,16 @@ export async function computeMonthBucketEnvelope(
     SAVINGS: budget.SAVINGS - spent.SAVINGS,
   };
 
-  const shifts = await prisma.bucketReallocation.findMany({
-    where: { userId, monthStart: start },
-  });
+  const shifts = await db.select()
+    .from(BucketReallocation)
+    .where(and(
+      eq(BucketReallocation.userId, userId),
+      eq(BucketReallocation.monthStart, start)
+    ));
 
   return {
     remaining: applyBucketReallocations(baseRemaining, shifts),
     resolveBucket,
   };
 }
+

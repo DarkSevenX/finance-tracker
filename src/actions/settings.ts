@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { validateBudgetPercents } from "@/lib/budget-alloc";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { BudgetSettings } from "@/lib/db/schema";
 
 export async function updateBudgetPercents(needsPct: number, wantsPct: number, savingsPct: number) {
   const session = await auth();
@@ -11,16 +12,20 @@ export async function updateBudgetPercents(needsPct: number, wantsPct: number, s
   if (!validateBudgetPercents(needsPct, wantsPct, savingsPct)) {
     return { error: "Los porcentajes deben sumar 100." as const };
   }
-  await prisma.budgetSettings.upsert({
-    where: { userId: session.user.id },
-    create: {
+  
+  await db.insert(BudgetSettings)
+    .values({
       userId: session.user.id,
       needsPct,
       wantsPct,
       savingsPct,
-    },
-    update: { needsPct, wantsPct, savingsPct },
-  });
+    })
+    .onConflictDoUpdate({
+      target: BudgetSettings.userId,
+      set: { needsPct, wantsPct, savingsPct },
+    });
+    
   revalidatePath("/dashboard");
   return { ok: true as const };
 }
+

@@ -7,16 +7,17 @@ import { Card } from "@/components/ui/card";
 import { bucketLabel } from "@/lib/labels";
 import { cn } from "@/lib/cn";
 import { listRowClass } from "@/lib/ui-classes";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { Category } from "@/lib/db/schema";
+import { eq, asc } from "drizzle-orm";
 
 export default async function CategoriasPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const all = await prisma.category.findMany({
-    where: { userId: session.user.id },
-    orderBy: { name: "asc" },
-  });
+  const all = await db.select().from(Category)
+    .where(eq(Category.userId, session.user.id))
+    .orderBy(asc(Category.name));
 
   const incomeRoots = all.filter((c) => c.kind === "INCOME" && !c.parentId);
   const expenseRoots = all.filter((c) => c.kind === "EXPENSE" && !c.parentId);
@@ -109,3 +110,4 @@ export default async function CategoriasPage() {
     </div>
   );
 }
+

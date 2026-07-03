@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
-import type { BudgetBucket } from "@prisma/client";
+import type { BudgetBucket } from "@/lib/db/schema";
 import { createCategory } from "@/actions/categories";
 import { bucketLabel } from "@/lib/labels";
 import { btnPrimaryClass, fieldClass, labelClass } from "@/lib/ui-classes";
@@ -267,3 +267,4 @@ export function InlineCategoryCreateIncome({
     </>
   );
 }
+

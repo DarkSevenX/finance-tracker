@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import type { BudgetBucket, CategoryKind } from "@prisma/client";
+import type { BudgetBucket, CategoryKind } from "@/lib/db/schema";
 import { createCategory } from "@/actions/categories";
 import { bucketLabel } from "@/lib/labels";
 import { cn } from "@/lib/cn";
@@ -103,3 +103,4 @@ export function CategoryForm({
     </form>
   );
 }
+

@@ -1,16 +1,28 @@
-import type { BudgetBucket, IncomeAllocationMode, Prisma } from "@prisma/client";
 import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
 import { es } from "date-fns/locale";
 import { buildBucketResolver } from "@/lib/budget-bucket-resolve";
 import { splitIncome } from "@/lib/budget-alloc";
 import { applyBucketReallocations, type BucketKey } from "@/lib/month-budget-envelope";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import {
+  BudgetSettings,
+  FinancialAccount,
+  Category,
+  Transaction,
+  BucketReallocation,
+  type BudgetBucket,
+  type IncomeAllocationMode
+} from "@/lib/db/schema";
+import { eq, and, gte, lte, inArray, desc, asc } from "drizzle-orm";
+import type { InferSelectModel } from "drizzle-orm";
 
 export type { BucketKey } from "@/lib/month-budget-envelope";
 
-export type DashboardMonthMovement = Prisma.TransactionGetPayload<{
-  include: { category: true; account: true };
-}> & { resolvedBucket: BudgetBucket | null };
+export type DashboardMonthMovement = InferSelectModel<typeof Transaction> & {
+  category: InferSelectModel<typeof Category> | null;
+  account: InferSelectModel<typeof FinancialAccount>;
+  resolvedBucket: BudgetBucket | null;
+};
 
 export type IncomeExpenseMonthPoint = {
   key: string;
@@ -27,36 +39,30 @@ export async function getDashboardSnapshot(userId: string, ref: Date) {
   const seriesStart = startOfMonth(subMonths(ref, 5));
   const seriesEnd = endOfMonth(ref);
 
-  const [settings, accounts, categories, txMonth, txAll, txsForSeries, bucketShifts] = await Promise.all([
-    prisma.budgetSettings.findUnique({ where: { userId } }),
-    prisma.financialAccount.findMany({ where: { userId }, orderBy: { name: "asc" } }),
-    prisma.category.findMany({ where: { userId } }),
-    prisma.transaction.findMany({
-      where: {
-        userId,
-        date: { gte: start, lte: end },
-        kind: { in: ["INCOME", "EXPENSE"] },
-      },
-      include: { category: true, account: true },
-      orderBy: { date: "desc" },
+  const [settingsList, accounts, categories, txMonth, txAll, txsForSeries, bucketShifts] = await Promise.all([
+    db.select().from(BudgetSettings).where(eq(BudgetSettings.userId, userId)).limit(1),
+    db.select().from(FinancialAccount).where(eq(FinancialAccount.userId, userId)).orderBy(asc(FinancialAccount.name)),
+    db.select().from(Category).where(eq(Category.userId, userId)),
+    db.query.Transaction.findMany({
+      where: (t, { and, gte, lte, inArray, eq }) => and(
+        eq(t.userId, userId),
+        gte(t.date, start),
+        lte(t.date, end),
+        inArray(t.kind, ["INCOME", "EXPENSE"])
+      ),
+      with: { category: true, account: true },
+      orderBy: (t, { desc }) => [desc(t.date)],
     }),
-    prisma.transaction.findMany({
-      where: { userId },
-      select: { accountId: true, kind: true, amount: true, toAccountId: true },
-    }),
-    prisma.transaction.findMany({
-      where: {
-        userId,
-        date: { gte: seriesStart, lte: seriesEnd },
-        kind: { in: ["INCOME", "EXPENSE"] },
-      },
-      select: { date: true, kind: true, amount: true },
-    }),
-    prisma.bucketReallocation.findMany({
-      where: { userId, monthStart: start },
-      orderBy: { createdAt: "desc" },
-    }),
+    db.select({ accountId: Transaction.accountId, kind: Transaction.kind, amount: Transaction.amount, toAccountId: Transaction.toAccountId })
+      .from(Transaction)
+      .where(eq(Transaction.userId, userId)),
+    db.select({ date: Transaction.date, kind: Transaction.kind, amount: Transaction.amount })
+      .from(Transaction)
+      .where(and(eq(Transaction.userId, userId), gte(Transaction.date, seriesStart), lte(Transaction.date, seriesEnd), inArray(Transaction.kind, ["INCOME", "EXPENSE"]))),
+    db.select().from(BucketReallocation).where(and(eq(BucketReallocation.userId, userId), eq(BucketReallocation.monthStart, start))).orderBy(desc(BucketReallocation.createdAt)),
   ]);
+
+  const settings = settingsList[0];
 
   const needsPct = settings?.needsPct ?? 50;
   const wantsPct = settings?.wantsPct ?? 30;
@@ -69,7 +75,6 @@ export async function getDashboardSnapshot(userId: string, ref: Date) {
 
   for (const t of txMonth) {
     if (t.kind === "INCOME") {
-      /** Reparto según los % actuales (no los guardados en el ingreso), para que al editar 50/30/20 el resumen se actualice. */
       const mode = (t.allocationMode ?? "SPLIT") as IncomeAllocationMode;
       const { needs, wants, savings } = splitIncome(
         t.amount,
@@ -166,17 +171,15 @@ export async function getDashboardSnapshot(userId: string, ref: Date) {
         WANTS: budget.WANTS - spent.WANTS,
         SAVINGS: budget.SAVINGS - spent.SAVINGS,
       },
-      bucketShifts
+      bucketShifts as any
     ),
     accountStats,
     totalBalance: totalIncomeAll - totalExpenseAll,
     totalIncomeAll,
     totalExpenseAll,
-    /** Ingresos y gastos por mes (últimos 6 meses hasta el mes de `ref`). */
     incomeExpenseLast6Months,
-    /** Todos los movimientos del mes de referencia (fecha descendente). */
     monthMovements,
-    /** Reasignaciones entre bloques del mes (no son ingresos/gastos). */
-    bucketShiftsMonth: bucketShifts,
+    bucketShiftsMonth: bucketShifts as any,
   };
 }
+

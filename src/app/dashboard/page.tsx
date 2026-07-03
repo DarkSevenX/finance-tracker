@@ -13,8 +13,9 @@ import { getDashboardSnapshot, type DashboardMonthMovement } from "@/lib/dashboa
 import { expenseCategoriesForForm, incomeOptions } from "@/lib/category-options";
 import { walletLabel } from "@/lib/labels";
 import { formatCOP } from "@/lib/money";
-import { prisma } from "@/lib/prisma";
-
+import { db } from "@/lib/db";
+import { FinancialAccount, Category } from "@/lib/db/schema";
+import { eq, asc } from "drizzle-orm";
 export default async function DashboardPage({
   searchParams,
 }: {
@@ -31,12 +32,8 @@ export default async function DashboardPage({
 
   const [data, accounts, categories] = await Promise.all([
     getDashboardSnapshot(session.user.id, ref),
-    prisma.financialAccount.findMany({
-      where: { userId: session.user.id },
-      orderBy: { name: "asc" },
-      select: { id: true, name: true, kind: true },
-    }),
-    prisma.category.findMany({ where: { userId: session.user.id } }),
+    db.select({ id: FinancialAccount.id, name: FinancialAccount.name, kind: FinancialAccount.kind }).from(FinancialAccount).where(eq(FinancialAccount.userId, session.user.id)).orderBy(asc(FinancialAccount.name)),
+    db.select().from(Category).where(eq(Category.userId, session.user.id)),
   ]);
 
   const accOpts = accounts.map((a) => ({ id: a.id, name: `${a.name} (${walletLabel(a.kind)})` }));
@@ -168,3 +165,4 @@ export default async function DashboardPage({
     </div>
   );
 }
+

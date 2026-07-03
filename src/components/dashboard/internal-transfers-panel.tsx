@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import type { BudgetBucket } from "@prisma/client";
+import type { BudgetBucket } from "@/lib/db/schema";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowRight, Trash2 } from "lucide-react";
@@ -316,3 +316,4 @@ export function InternalTransfersPanel({
     </div>
   );
 }
+

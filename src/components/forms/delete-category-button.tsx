@@ -28,3 +28,4 @@ export function DeleteCategoryButton({ id }: { id: string }) {
     </button>
   );
 }
+

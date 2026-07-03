@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { CategoryKind } from "@prisma/client";
+import type { CategoryKind } from "@/lib/db/schema";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import type { BudgetBucket, IncomeAllocationMode } from "@prisma/client";
+import type { BudgetBucket, IncomeAllocationMode } from "@/lib/db/schema";
 import { ListFilter, X } from "lucide-react";
 import { allocationLabel, bucketLabel } from "@/lib/labels";
 import { formatCOP } from "@/lib/money";
@@ -293,3 +293,4 @@ export function MonthMovementsTable({
     </div>
   );
 }
+

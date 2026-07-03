@@ -1,7 +1,9 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { User } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
@@ -19,9 +21,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const email = credentials?.email;
         const password = credentials?.password;
         if (!email || !password) return null;
-        const user = await prisma.user.findUnique({
-          where: { email: String(email).toLowerCase().trim() },
-        });
+        const users = await db.select().from(User).where(eq(User.email, String(email).toLowerCase().trim())).limit(1);
+        const user = users[0];
         if (!user) return null;
         const ok = await compare(String(password), user.passwordHash);
         if (!ok) return null;
@@ -46,3 +47,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
+

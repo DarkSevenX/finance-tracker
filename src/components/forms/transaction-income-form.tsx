@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import type { IncomeAllocationMode } from "@prisma/client";
+import type { IncomeAllocationMode } from "@/lib/db/schema";
 import { createIncome } from "@/actions/transaction-mutations";
 import { allocationLabel } from "@/lib/labels";
 import { parseCOPInput } from "@/lib/money";
@@ -11,7 +11,7 @@ import { cn } from "@/lib/cn";
 import { btnPrimaryClass, fieldClass, labelClass } from "@/lib/ui-classes";
 import { InlineCategoryCreateIncome } from "@/components/forms/inline-category-create";
 
-const modes: IncomeAllocationMode[] = ["SPLIT", "NEEDS_ONLY", "WANTS_ONLY", "SAVINGS_ONLY"];
+const modes: IncomeAllocationMode[] = ["SPLIT", "ALL_NEEDS", "ALL_WANTS", "ALL_SAVINGS"];
 
 export function TransactionIncomeForm({
   accounts,
@@ -160,3 +160,4 @@ export function TransactionIncomeForm({
     </form>
   );
 }
+

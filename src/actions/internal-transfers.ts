@@ -7,8 +7,9 @@ import { getAccountBalance } from "@/lib/account-balance";
 import { bucketLabel } from "@/lib/labels";
 import type { BucketKey } from "@/lib/month-budget-envelope";
 import { computeMonthBucketEnvelope } from "@/lib/month-budget-envelope";
-import { prisma } from "@/lib/prisma";
-import type { BudgetBucket } from "@prisma/client";
+import { db } from "@/lib/db";
+import { FinancialAccount, Transaction, BucketReallocation, type BudgetBucket } from "@/lib/db/schema";
+import { eq, and } from "drizzle-orm";
 
 export async function createAccountTransfer(input: {
   fromAccountId: string;
@@ -26,14 +27,12 @@ export async function createAccountTransfer(input: {
     return { error: "Elige dos cuentas distintas." as const };
   }
 
-  const [from, to] = await Promise.all([
-    prisma.financialAccount.findFirst({
-      where: { id: input.fromAccountId, userId: session.user.id },
-    }),
-    prisma.financialAccount.findFirst({
-      where: { id: input.toAccountId, userId: session.user.id },
-    }),
+  const [fromResult, toResult] = await Promise.all([
+    db.select().from(FinancialAccount).where(and(eq(FinancialAccount.id, input.fromAccountId), eq(FinancialAccount.userId, session.user.id))).limit(1),
+    db.select().from(FinancialAccount).where(and(eq(FinancialAccount.id, input.toAccountId), eq(FinancialAccount.userId, session.user.id))).limit(1),
   ]);
+  const from = fromResult[0];
+  const to = toResult[0];
   if (!from || !to) return { error: "Cuenta inválida." as const };
 
   const balance = await getAccountBalance(session.user.id, input.fromAccountId);
@@ -44,16 +43,14 @@ export async function createAccountTransfer(input: {
   const title = input.title?.trim() || "Traspaso entre cuentas";
   const date = new Date(input.date);
 
-  await prisma.transaction.create({
-    data: {
-      userId: session.user.id,
-      accountId: input.fromAccountId,
-      toAccountId: input.toAccountId,
-      kind: "TRANSFER",
-      amount,
-      title,
-      date,
-    },
+  await db.insert(Transaction).values({
+    userId: session.user.id,
+    accountId: input.fromAccountId,
+    toAccountId: input.toAccountId,
+    kind: "TRANSFER",
+    amount,
+    title,
+    date,
   });
 
   revalidatePath("/dashboard");
@@ -86,14 +83,12 @@ export async function createBucketReallocation(input: {
     };
   }
 
-  await prisma.bucketReallocation.create({
-    data: {
-      userId: session.user.id,
-      monthStart: monthDate,
-      fromBucket: input.fromBucket,
-      toBucket: input.toBucket,
-      amount,
-    },
+  await db.insert(BucketReallocation).values({
+    userId: session.user.id,
+    monthStart: monthDate,
+    fromBucket: input.fromBucket,
+    toBucket: input.toBucket,
+    amount,
   });
 
   revalidatePath("/dashboard");
@@ -104,11 +99,10 @@ export async function deleteBucketReallocation(id: string) {
   const session = await auth();
   if (!session?.user?.id) return { error: "No autorizado" as const };
 
-  const deleted = await prisma.bucketReallocation.deleteMany({
-    where: { id, userId: session.user.id },
-  });
-  if (deleted.count === 0) return { error: "Ajuste no encontrado." as const };
+  const deleted = await db.delete(BucketReallocation).where(and(eq(BucketReallocation.id, id), eq(BucketReallocation.userId, session.user.id))).returning({ id: BucketReallocation.id });
+  if (deleted.length === 0) return { error: "Ajuste no encontrado." as const };
 
   revalidatePath("/dashboard");
   return { ok: true as const };
 }
+

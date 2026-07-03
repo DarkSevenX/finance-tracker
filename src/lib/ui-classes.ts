@@ -39,3 +39,4 @@ export const tableRowClass =
 /** Fila de lista (categorías, etc.) */
 export const listRowClass =
   "flex items-center justify-between rounded-lg border border-zinc-800/90 bg-zinc-900/25 px-4 py-3 text-sm transition-colors hover:bg-zinc-900/45";
+

@@ -1,4 +1,4 @@
-import type { BudgetBucket, IncomeAllocationMode, WalletKind } from "@prisma/client";
+import type { BudgetBucket, IncomeAllocationMode, WalletKind } from "@/lib/db/schema";
 
 const wallet: Record<WalletKind, string> = {
   CASH: "Efectivo",
@@ -23,11 +23,12 @@ export function bucketLabel(b: BudgetBucket): string {
 
 const alloc: Record<IncomeAllocationMode, string> = {
   SPLIT: "Repartir según % (50/30/20)",
-  NEEDS_ONLY: "100% a necesidades",
-  WANTS_ONLY: "100% a deseos",
-  SAVINGS_ONLY: "100% a ahorros",
+  ALL_NEEDS: "100% a necesidades",
+  ALL_WANTS: "100% a deseos",
+  ALL_SAVINGS: "100% a ahorros",
 };
 
 export function allocationLabel(m: IncomeAllocationMode): string {
   return alloc[m];
 }
+

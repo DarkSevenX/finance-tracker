@@ -168,3 +168,4 @@ export function BudgetDonut() {
     </motion.div>
   );
 }
+

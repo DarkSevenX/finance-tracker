@@ -7,28 +7,27 @@ import { Card } from "@/components/ui/card";
 import { getAccountBalance } from "@/lib/account-balance";
 import { walletLabel } from "@/lib/labels";
 import { formatCOP } from "@/lib/money";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { FinancialAccount, Transaction } from "@/lib/db/schema";
+import { eq, and, sum, asc } from "drizzle-orm";
 
 export default async function CuentasPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const accounts = await prisma.financialAccount.findMany({
-    where: { userId: session.user.id },
-    orderBy: { name: "asc" },
-  });
+  const accounts = await db.select().from(FinancialAccount)
+    .where(eq(FinancialAccount.userId, session.user.id))
+    .orderBy(asc(FinancialAccount.name));
 
   const [incomeRows, expenseRows, balances] = await Promise.all([
-    prisma.transaction.groupBy({
-      by: ["accountId"],
-      where: { userId: session.user.id, kind: "INCOME" },
-      _sum: { amount: true },
-    }),
-    prisma.transaction.groupBy({
-      by: ["accountId"],
-      where: { userId: session.user.id, kind: "EXPENSE" },
-      _sum: { amount: true },
-    }),
+    db.select({ accountId: Transaction.accountId, sumAmount: sum(Transaction.amount) })
+      .from(Transaction)
+      .where(and(eq(Transaction.userId, session.user.id), eq(Transaction.kind, "INCOME")))
+      .groupBy(Transaction.accountId),
+    db.select({ accountId: Transaction.accountId, sumAmount: sum(Transaction.amount) })
+      .from(Transaction)
+      .where(and(eq(Transaction.userId, session.user.id), eq(Transaction.kind, "EXPENSE")))
+      .groupBy(Transaction.accountId),
     Promise.all(accounts.map((a) => getAccountBalance(session.user.id, a.id))),
   ]);
 
@@ -38,12 +37,12 @@ export default async function CuentasPage() {
   }
   for (const row of incomeRows) {
     const cur = map.get(row.accountId) ?? { income: 0, expense: 0, balance: 0 };
-    cur.income = row._sum.amount ?? 0;
+    cur.income = Number(row.sumAmount) ?? 0;
     map.set(row.accountId, cur);
   }
   for (const row of expenseRows) {
     const cur = map.get(row.accountId) ?? { income: 0, expense: 0, balance: 0 };
-    cur.expense = row._sum.amount ?? 0;
+    cur.expense = Number(row.sumAmount) ?? 0;
     map.set(row.accountId, cur);
   }
 
@@ -103,3 +102,4 @@ export default async function CuentasPage() {
     </div>
   );
 }
+

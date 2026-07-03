@@ -1,29 +1,29 @@
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
+import { Transaction } from "@/lib/db/schema";
+import { eq, and, sum } from "drizzle-orm";
 
 /** Saldo de cuenta: ingresos − gastos − traspasos salientes + traspasos entrantes. */
 export async function getAccountBalance(userId: string, accountId: string): Promise<number> {
   const [inc, exp, tout, tin] = await Promise.all([
-    prisma.transaction.aggregate({
-      where: { userId, accountId, kind: "INCOME" },
-      _sum: { amount: true },
-    }),
-    prisma.transaction.aggregate({
-      where: { userId, accountId, kind: "EXPENSE" },
-      _sum: { amount: true },
-    }),
-    prisma.transaction.aggregate({
-      where: { userId, accountId, kind: "TRANSFER" },
-      _sum: { amount: true },
-    }),
-    prisma.transaction.aggregate({
-      where: { userId, toAccountId: accountId, kind: "TRANSFER" },
-      _sum: { amount: true },
-    }),
+    db.select({ value: sum(Transaction.amount) })
+      .from(Transaction)
+      .where(and(eq(Transaction.userId, userId), eq(Transaction.accountId, accountId), eq(Transaction.kind, "INCOME"))),
+    db.select({ value: sum(Transaction.amount) })
+      .from(Transaction)
+      .where(and(eq(Transaction.userId, userId), eq(Transaction.accountId, accountId), eq(Transaction.kind, "EXPENSE"))),
+    db.select({ value: sum(Transaction.amount) })
+      .from(Transaction)
+      .where(and(eq(Transaction.userId, userId), eq(Transaction.accountId, accountId), eq(Transaction.kind, "TRANSFER"))),
+    db.select({ value: sum(Transaction.amount) })
+      .from(Transaction)
+      .where(and(eq(Transaction.userId, userId), eq(Transaction.toAccountId, accountId), eq(Transaction.kind, "TRANSFER"))),
   ]);
+  
   return (
-    (inc._sum.amount ?? 0) -
-    (exp._sum.amount ?? 0) -
-    (tout._sum.amount ?? 0) +
-    (tin._sum.amount ?? 0)
+    (Number(inc[0]?.value) || 0) -
+    (Number(exp[0]?.value) || 0) -
+    (Number(tout[0]?.value) || 0) +
+    (Number(tin[0]?.value) || 0)
   );
 }
+

@@ -34,3 +34,4 @@ const BudgetDonutLazy = dynamic(
 export function BudgetDonutSlot() {
   return <BudgetDonutLazy />;
 }
+
