@@ -46,10 +46,12 @@ export function TransactionExpenseForm({
   accounts,
   categories,
   compact,
+  onSuccess,
 }: {
   accounts: { id: string; name: string }[];
   categories: { id: string; label: string; bucket: BudgetBucket | null }[];
   compact?: boolean;
+  onSuccess?: () => void;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -74,8 +76,9 @@ export function TransactionExpenseForm({
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
     setPending(true);
-    const fd = new FormData(e.currentTarget);
+    const fd = new FormData(form);
     const amount = parseCOPInput(String(fd.get("amount") ?? "0"));
     const cid = String(fd.get("categoryId") ?? "").trim();
     const res = await createExpense({
@@ -90,10 +93,11 @@ export function TransactionExpenseForm({
       toast.error(res.error);
     } else {
       toast.success("Gasto registrado.");
-      e.currentTarget.reset();
+      form.reset();
       setCategoryId("");
       // setBucket("NEEDS");
       router.refresh();
+      onSuccess?.();
     }
   }
 

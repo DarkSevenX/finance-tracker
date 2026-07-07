@@ -15,6 +15,7 @@
   --animate-ghost-drift-a: ghost-drift-a 26s ease-in-out infinite;
   --animate-ghost-drift-b: ghost-drift-b 32s ease-in-out infinite;
   --animate-ghost-drift-c: ghost-drift-c 38s ease-in-out infinite;
+  --animate-ghost-float: ghost-float 4s ease-in-out infinite;
 }
 
 html {
@@ -72,4 +73,9 @@ body {
   75% {
     transform: translate3d(18px, -12px, 0) rotate(4deg);
   }
+}
+
+@keyframes ghost-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }

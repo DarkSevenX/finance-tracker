@@ -17,10 +17,12 @@ export function TransactionIncomeForm({
   accounts,
   categories,
   compact,
+  onSuccess,
 }: {
   accounts: { id: string; name: string }[];
   categories: { id: string; name: string }[];
   compact?: boolean;
+  onSuccess?: () => void;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -33,8 +35,9 @@ export function TransactionIncomeForm({
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
     setPending(true);
-    const fd = new FormData(e.currentTarget);
+    const fd = new FormData(form);
     const amount = parseCOPInput(String(fd.get("amount") ?? "0"));
     const cid = String(fd.get("categoryId") ?? "").trim();
     const res = await createIncome({
@@ -50,9 +53,10 @@ export function TransactionIncomeForm({
       toast.error(res.error);
     } else {
       toast.success("Ingreso registrado.");
-      e.currentTarget.reset();
+      form.reset();
       setCategoryId("");
       router.refresh();
+      onSuccess?.();
     }
   }
 

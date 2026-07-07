@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { AccountForm } from "@/components/forms/account-form";
+import { NewAccountModal } from "@/components/dashboard/modals/new-account-modal";
 import { DeleteAccountButton } from "@/components/forms/delete-account-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
@@ -51,23 +51,15 @@ export default async function CuentasPage() {
       <PageHeader
         title="Cuentas"
         description="Efectivo, bancos y tarjetas. El saldo se calcula con todos los movimientos."
+        action={<NewAccountModal />}
       />
 
-      <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-2">
-        <Card>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">Nueva cuenta</h2>
-          <p className="mt-1 text-sm text-zinc-500">Montos en pesos colombianos, sin decimales.</p>
-          <div className="mt-6">
-            <AccountForm />
-          </div>
-        </Card>
-
-        <div className="space-y-4">
+      <div className="space-y-4">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">Tus cuentas</h2>
           {accounts.length === 0 ? (
             <p className="text-sm text-zinc-500">Crea al menos una cuenta para registrar ingresos y gastos.</p>
           ) : (
-            <ul className="space-y-3">
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {accounts.map((a) => {
                 const s = map.get(a.id) ?? { income: 0, expense: 0, balance: 0 };
                 const balance = s.balance;
@@ -97,7 +89,6 @@ export default async function CuentasPage() {
               })}
             </ul>
           )}
-        </div>
       </div>
     </div>
   );

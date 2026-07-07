@@ -218,8 +218,8 @@ export function InternalTransfersPanel({
             <p className="text-center text-xs text-zinc-500">Necesitas al menos dos cuentas.</p>
           ) : null}
         </form>
-      ) : null
-      /* [NOTA AI]: Se desactivó el formulario de bloques 50/30/20.
+      ) : null}
+      {/* [NOTA AI]: Se desactivó el formulario de bloques 50/30/20.
       (
         <div className="space-y-4">
           <form onSubmit={submitBuckets} className="space-y-4">
@@ -317,7 +317,7 @@ export function InternalTransfersPanel({
           ) : null}
         </div>
       )
-      */
+      */}
     </div>
   );
 }

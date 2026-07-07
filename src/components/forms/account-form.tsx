@@ -15,14 +15,15 @@ const kinds: { value: WalletKind; label: string }[] = [
   { value: "OTHER", label: "Otra" },
 ];
 
-export function AccountForm() {
+export function AccountForm({ onSuccess }: { onSuccess?: () => void }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
     setPending(true);
-    const fd = new FormData(e.currentTarget);
+    const fd = new FormData(form);
     const name = String(fd.get("name") ?? "");
     const kind = String(fd.get("kind") ?? "OTHER") as WalletKind;
     const res = await createAccount(name, kind);
@@ -31,8 +32,9 @@ export function AccountForm() {
       toast.error(res.error);
     } else {
       toast.success("Cuenta creada.");
-      e.currentTarget.reset();
+      form.reset();
       router.refresh();
+      onSuccess?.();
     }
   }
 

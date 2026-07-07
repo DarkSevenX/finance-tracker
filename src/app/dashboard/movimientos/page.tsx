@@ -3,8 +3,7 @@ import { es } from "date-fns/locale";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { DeleteTransactionButton } from "@/components/forms/delete-transaction-button";
-import { TransactionExpenseForm } from "@/components/forms/transaction-expense-form";
-import { TransactionIncomeForm } from "@/components/forms/transaction-income-form";
+import { NewTransactionModals } from "@/components/dashboard/modals/new-transaction-modals";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { categoryLabel, expenseCategoriesForForm, incomeOptions } from "@/lib/category-options";
@@ -57,23 +56,15 @@ export default async function MovimientosPage() {
     <div className="w-full min-w-0 space-y-8 sm:space-y-10">
       <PageHeader
         title="Movimientos"
-        description="Registra ingresos y gastos en COP. Puedes repartir ingresos o destinarlos al 100% a un bloque."
+        description="Registra ingresos y gastos en COP."
+        action={
+          <NewTransactionModals
+            accounts={accOpts}
+            expenseCategories={expOpts}
+            incomeCategories={incOpts}
+          />
+        }
       />
-
-      <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-2">
-        <Card>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">Ingreso</h2>
-          <div className="mt-6">
-            <TransactionIncomeForm accounts={accOpts} categories={incOpts} />
-          </div>
-        </Card>
-        <Card>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">Gasto</h2>
-          <div className="mt-6">
-            <TransactionExpenseForm accounts={accOpts} categories={expOpts} />
-          </div>
-        </Card>
-      </div>
 
       <section className="space-y-4">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">Historial</h2>

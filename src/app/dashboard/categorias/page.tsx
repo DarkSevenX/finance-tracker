@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { CategoryForm } from "@/components/forms/category-form";
+import { NewCategoryModal } from "@/components/dashboard/modals/new-category-modal";
 import { DeleteCategoryButton } from "@/components/forms/delete-category-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
@@ -19,11 +19,7 @@ export default async function CategoriasPage() {
     .where(eq(Category.userId, session.user.id))
     .orderBy(asc(Category.name));
 
-  const incomeRoots = all.filter((c) => c.kind === "INCOME" && !c.parentId);
-  const expenseRoots = all.filter((c) => c.kind === "EXPENSE" && !c.parentId);
 
-  const incomeParents = incomeRoots.map((c) => ({ id: c.id, name: c.name }));
-  const expenseParents = expenseRoots.map((c) => ({ id: c.id, name: c.name }));
 
   function linesFor(kind: "INCOME" | "EXPENSE") {
     const roots = all.filter((c) => c.kind === kind && !c.parentId);
@@ -56,20 +52,12 @@ export default async function CategoriasPage() {
     <div className="w-full min-w-0 space-y-8 sm:space-y-10">
       <PageHeader
         title="Categorías"
-        // [NOTA AI]: Se actualizó la descripción para remover mención a bloques.
         description="Gestiona tus categorías de ingresos y gastos."
+        action={<NewCategoryModal />}
       />
 
-      <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-2">
-        <Card>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">Nueva categoría</h2>
-          <div className="mt-6">
-            <CategoryForm incomeParents={incomeParents} expenseParents={expenseParents} />
-          </div>
-        </Card>
-
-        <div className="space-y-8">
-          <section>
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <section>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">Ingresos</h3>
             <ul className="mt-3 space-y-2">
               {linesFor("INCOME").length === 0 ? (
@@ -106,7 +94,6 @@ export default async function CategoriasPage() {
               )}
             </ul>
           </section>
-        </div>
       </div>
     </div>
   );

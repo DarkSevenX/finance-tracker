@@ -12,29 +12,25 @@ import { btnPrimaryClass, fieldClass, labelClass } from "@/lib/ui-classes";
 const buckets: BudgetBucket[] = ["NEEDS", "WANTS", "SAVINGS"];
 
 export function CategoryForm({
-  incomeParents,
-  expenseParents,
+  onSuccess,
 }: {
-  incomeParents: { id: string; name: string }[];
-  expenseParents: { id: string; name: string }[];
+  onSuccess?: () => void;
 }) {
   const router = useRouter();
   const [kind, setKind] = useState<CategoryKind>("EXPENSE");
-  const [parentId, setParentId] = useState("");
   const [pending, setPending] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
     setPending(true);
-    const fd = new FormData(e.currentTarget);
+    const fd = new FormData(form);
     const name = String(fd.get("name") ?? "");
-    const pid = String(fd.get("parentId") ?? "") || null;
-    const bucketRaw = String(fd.get("bucket") ?? "") as BudgetBucket | "";
+    const kind = String(fd.get("kind") ?? "EXPENSE") as CategoryKind;
     const res = await createCategory({
       name,
       kind,
-      parentId: pid,
-      // [NOTA AI]: Se ignora el bucket ya que la funcionalidad 50/30/20 está desactivada.
+      parentId: null,
       bucket: null,
     });
     setPending(false);
@@ -42,22 +38,24 @@ export function CategoryForm({
       toast.error(res.error);
     } else {
       toast.success("Categoría creada.");
-      e.currentTarget.reset();
+      form.reset();
       router.refresh();
+      onSuccess?.();
     }
   }
-
-  const parents = kind === "INCOME" ? incomeParents : expenseParents;
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <label className={labelClass}>Tipo</label>
+        <label className={labelClass} htmlFor="cat-kind">
+          Tipo
+        </label>
         <select
+          id="cat-kind"
+          name="kind"
           value={kind}
           onChange={(e) => {
             setKind(e.target.value as CategoryKind);
-            setParentId("");
           }}
           className={fieldClass}
         >
@@ -68,37 +66,6 @@ export function CategoryForm({
       <div>
         <label className={labelClass}>Nombre</label>
         <input name="name" required className={fieldClass} />
-      </div>
-      {/* [NOTA AI]: Se desactivó el selector de bloques 50/30/20.
-      {kind === "EXPENSE" && !parentId ? (
-        <div>
-          <label className={labelClass}>Bloque (necesidades, deseos o ahorros)</label>
-          <select name="bucket" className={fieldClass}>
-            <option value="">— Elige —</option>
-            {buckets.map((b) => (
-              <option key={b} value={b}>
-                {bucketLabel(b)}
-              </option>
-            ))}
-          </select>
-        </div>
-      ) : null}
-      */}
-      <div>
-        <label className={labelClass}>Subcategoría de (opcional)</label>
-        <select
-          name="parentId"
-          value={parentId}
-          onChange={(e) => setParentId(e.target.value)}
-          className={fieldClass}
-        >
-          <option value="">— Ninguna —</option>
-          {parents.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
       </div>
       <button type="submit" disabled={pending} className={cn(btnPrimaryClass)}>
         {pending ? "Guardando…" : "Agregar categoría"}
