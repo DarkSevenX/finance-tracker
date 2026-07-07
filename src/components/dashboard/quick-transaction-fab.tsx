@@ -171,8 +171,8 @@ export function QuickTransactionFab({
                       "transition hover:border-sky-400/50 hover:bg-sky-950/40 hover:text-sky-300",
                       "focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50"
                     )}
-                    title="Traspasos entre cuentas o bloques"
-                    aria-label="Traspasos entre cuentas o bloques"
+                    title="Traspasos entre cuentas"
+                    aria-label="Traspasos entre cuentas"
                   >
                     <ArrowLeftRight className="h-5 w-5" strokeWidth={2.25} />
                   </button>

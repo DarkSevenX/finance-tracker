@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Boo Money",
     short_name: "Boo Money",
     description:
-      "Ingresos, gastos y presupuesto 50/30/20 con cuentas y categorías.",
+      "Boo Money: ingresos, gastos y presupuesto con cuentas y categorías.",
     start_url: "/",
     scope: "/",
     display: "standalone",

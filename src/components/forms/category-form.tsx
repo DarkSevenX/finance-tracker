@@ -34,7 +34,8 @@ export function CategoryForm({
       name,
       kind,
       parentId: pid,
-      bucket: kind === "EXPENSE" && !pid ? bucketRaw || undefined : null,
+      // [NOTA AI]: Se ignora el bucket ya que la funcionalidad 50/30/20 está desactivada.
+      bucket: null,
     });
     setPending(false);
     if ("error" in res && res.error) {
@@ -68,6 +69,7 @@ export function CategoryForm({
         <label className={labelClass}>Nombre</label>
         <input name="name" required className={fieldClass} />
       </div>
+      {/* [NOTA AI]: Se desactivó el selector de bloques 50/30/20.
       {kind === "EXPENSE" && !parentId ? (
         <div>
           <label className={labelClass}>Bloque (necesidades, deseos o ahorros)</label>
@@ -81,6 +83,7 @@ export function CategoryForm({
           </select>
         </div>
       ) : null}
+      */}
       <div>
         <label className={labelClass}>Subcategoría de (opcional)</label>
         <select

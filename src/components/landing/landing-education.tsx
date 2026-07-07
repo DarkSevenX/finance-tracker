@@ -13,8 +13,8 @@ import {
   budgetingSection,
   conceptsSection,
   conclusionSection,
-  rule502030Columns,
-  rule502030Intro,
+  coreFeaturesColumns,
+  coreFeaturesIntro,
   templateSection,
 } from "@/data/landing-education";
 import { cn } from "@/lib/cn";
@@ -75,11 +75,11 @@ function SplitMeter() {
     <div
       className="flex h-4 w-full max-w-2xl overflow-hidden rounded-full ring-1 ring-white/10"
       role="img"
-      aria-label="Reparto visual: 50 por ciento necesidades, 30 deseos, 20 ahorro"
+      aria-label="Reparto visual de tus finanzas"
     >
-      <div className="w-[50%] bg-gradient-to-b from-emerald-400 to-emerald-600" />
-      <div className="w-[30%] bg-gradient-to-b from-amber-300 to-amber-600" />
-      <div className="w-[20%] bg-gradient-to-b from-violet-300 to-violet-600" />
+      <div className="w-[34%] bg-gradient-to-b from-emerald-400 to-emerald-600" />
+      <div className="w-[33%] bg-gradient-to-b from-amber-300 to-amber-600" />
+      <div className="w-[33%] bg-gradient-to-b from-violet-300 to-violet-600" />
     </div>
   );
 }
@@ -111,39 +111,34 @@ export function LandingEducation() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
           <div className="max-w-xl lg:max-w-lg">
             <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-emerald-500/90">
-              Regla clásica
+              Gestión Simplificada
             </p>
             <h2 className="mt-3 text-3xl font-semibold leading-[1.08] tracking-tight text-white sm:text-4xl lg:text-[2.65rem]">
-              {rule502030Intro.title}
+              {coreFeaturesIntro.title}
             </h2>
             <p className="mt-5 text-base leading-relaxed text-zinc-400 sm:text-lg">
-              {rule502030Intro.lead}
+              {coreFeaturesIntro.lead}
             </p>
           </div>
           <div className="flex shrink-0 flex-col items-start gap-3 lg:items-end">
-            <div className="font-mono text-[clamp(2.5rem,8vw,4.5rem)] font-semibold leading-none tracking-tighter text-white/90">
-              <span className="text-emerald-400">50</span>
-              <span className="mx-1.5 text-zinc-600 sm:mx-2">/</span>
-              <span className="text-amber-300">30</span>
-              <span className="mx-1.5 text-zinc-600 sm:mx-2">/</span>
-              <span className="text-violet-300">20</span>
+            <div className="font-mono text-[clamp(1.5rem,5vw,3rem)] font-semibold leading-none tracking-tight text-white/90">
+              <span className="text-emerald-400">Ingresos</span>
+              <span className="mx-1.5 text-zinc-600 sm:mx-2">·</span>
+              <span className="text-amber-300">Gastos</span>
+              <span className="mx-1.5 text-zinc-600 sm:mx-2">·</span>
+              <span className="text-violet-300">Cuentas</span>
             </div>
             <SplitMeter />
           </div>
         </div>
 
-        <div className="mt-12 grid gap-4 sm:mt-14 lg:grid-cols-12 lg:gap-4">
-          {rule502030Columns.map((col, i) => {
+        <div className="mt-12 grid gap-4 sm:mt-14 lg:grid-cols-3 lg:gap-4">
+          {coreFeaturesColumns.map((col, i) => {
             const a = accent[col.accent];
-            const span =
-              col.pct === 50
-                ? "lg:col-span-7 lg:row-span-2 lg:min-h-[320px]"
-                : col.pct === 30
-                  ? "lg:col-span-5"
-                  : "lg:col-span-5";
+            const span = "lg:col-span-1";
             return (
               <motion.article
-                key={col.pct}
+                key={col.id}
                 initial={reduce ? false : { opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-6%" }}
@@ -162,23 +157,17 @@ export function LandingEducation() {
                 />
                 <div className="relative flex h-full flex-col">
                   <div className="flex items-center justify-between gap-3">
-                    <span className={cn("font-mono text-4xl font-bold tabular-nums sm:text-5xl", a.text)}>
-                      {col.pct}%
-                    </span>
                     <span className={cn("rounded-full border px-3 py-1 text-xs font-medium", a.border, a.text)}>
                       {col.title}
                     </span>
                   </div>
                   <ul
                     className={cn(
-                      "mt-6 text-sm leading-relaxed text-zinc-300/95",
-                      col.pct === 50
-                        ? "space-y-2 sm:columns-2 sm:gap-x-8 sm:space-y-0"
-                        : "space-y-2.5"
+                      "mt-6 text-sm leading-relaxed text-zinc-300/95 space-y-2.5"
                     )}
                   >
                     {col.items.map((line) => (
-                      <li key={line} className={cn(col.pct === 50 && "break-inside-avoid mb-2 sm:mb-3")}>
+                      <li key={line} className={cn("mb-2 sm:mb-3")}>
                         <span className={cn("mr-2 inline-block size-1.5 rounded-full align-middle", a.bar)} />
                         {line}
                       </li>
@@ -191,7 +180,7 @@ export function LandingEducation() {
         </div>
 
         <p className="mt-10 max-w-2xl text-center text-base leading-relaxed text-zinc-400 sm:text-left sm:text-lg">
-          <span className="text-zinc-200">↳</span> {rule502030Intro.footnote}
+          <span className="text-zinc-200">↳</span> {coreFeaturesIntro.footnote}
         </p>
       </motion.section>
 
@@ -221,13 +210,11 @@ export function LandingEducation() {
                     viewport={{ once: true }}
                     transition={{ delay: reduce ? 0 : 0.06 * i }}
                     className={cn(
-                      "rounded-2xl px-4 py-3.5 text-sm leading-snug text-zinc-200 backdrop-blur-sm",
+                      "flex items-center rounded-2xl px-4 py-3.5 text-sm leading-snug text-zinc-200 backdrop-blur-sm",
                       surfaceCard
                     )}
                   >
-                    <span className="mr-2" aria-hidden>
-                      {b.emoji}
-                    </span>
+                    <b.icon className="mr-3 size-5 text-emerald-400 shrink-0" strokeWidth={1.5} aria-hidden />
                     {b.text}
                   </motion.div>
                 ))}
@@ -269,9 +256,7 @@ export function LandingEducation() {
                 surfaceCardSubtle
               )}
             >
-              <span className="shrink-0 text-base" aria-hidden>
-                {b.emoji}
-              </span>
+              <b.icon className="size-4 shrink-0 text-emerald-400" strokeWidth={2} aria-hidden />
               <RichInline text={b.text} />
             </motion.span>
           ))}
@@ -329,11 +314,9 @@ export function LandingEducation() {
                 surfaceCard
               )}
             >
-              <div className="flex items-baseline justify-between gap-2 border-b border-zinc-700/50 pb-3">
+              <div className="flex items-center justify-between gap-2 border-b border-zinc-700/50 pb-3">
                 <p className="text-base font-semibold text-white">{c.term}</p>
-                <span className="text-xl opacity-95" aria-hidden>
-                  {c.emoji}
-                </span>
+                <c.icon className="size-5 text-emerald-400/90" strokeWidth={1.75} aria-hidden />
               </div>
               <p className="mt-3 text-sm leading-relaxed text-zinc-400">{c.def}</p>
             </motion.div>

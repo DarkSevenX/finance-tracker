@@ -2,7 +2,8 @@ import { endOfMonth, format, startOfMonth } from "date-fns";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AvailableBalanceCard } from "@/components/dashboard/available-balance-card";
-import { BucketCards } from "@/components/dashboard/bucket-cards";
+// [NOTA AI]: Se desactivó el componente 50/30/20 temporalmente
+// import { BucketCards } from "@/components/dashboard/bucket-cards";
 import { IncomeExpenseChartPanel } from "@/components/dashboard/income-expense-chart-panel";
 import { MonthMovementsTable } from "@/components/dashboard/month-movements-table";
 import { QuickTransactionFab } from "@/components/dashboard/quick-transaction-fab";
@@ -82,7 +83,8 @@ export default async function DashboardPage({
             />
           </Card>
         </div>
-
+        
+        {/* [NOTA AI]: Se desactivó la sección de sobres 50/30/20. 
         <BucketCards
           needsPct={data.needsPct}
           wantsPct={data.wantsPct}
@@ -91,6 +93,7 @@ export default async function DashboardPage({
           spent={data.spent}
           remaining={data.remaining}
         />
+        */}
       </div>
 
       <section className="space-y-4 sm:space-y-5">

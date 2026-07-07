@@ -1,6 +1,11 @@
+// [NOTA AI]: Se ha desactivado temporalmente la funcionalidad 50/30/20 (Necesidades, Deseos, Ahorros).
+// El enfoque principal de la app es sólo Ingresos y Gastos simples.
+// POR FAVOR NO ELIMINAR estos tipos ni usarlos activamente en nuevas features, 
+// se mantienen para no romper la base de datos (migraciones).
 export type BudgetBucket = "NEEDS" | "WANTS" | "SAVINGS";
 export type CategoryKind = "INCOME" | "EXPENSE";
 export type WalletKind = "CASH" | "BANK" | "CARD" | "OTHER";
+// [NOTA AI]: allocationMode desactivado
 export type IncomeAllocationMode = "SPLIT" | "ALL_NEEDS" | "ALL_WANTS" | "ALL_SAVINGS";
 export type TransactionKind = "INCOME" | "EXPENSE" | "TRANSFER";
 export type UserModel = typeof User.$inferSelect;
@@ -23,6 +28,7 @@ export const User = sqliteTable("User", {
   updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch() * 1000)`),
 });
 
+// [NOTA AI]: BudgetSettings está deprecado temporalmente. No usar.
 export const BudgetSettings = sqliteTable("BudgetSettings", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text("userId").notNull().unique().references(() => User.id, { onDelete: "cascade" }),
@@ -46,12 +52,14 @@ export const Category = sqliteTable("Category", {
   name: text("name").notNull(),
   kind: text("kind").$type<CategoryKind>().notNull(), // 'INCOME' | 'EXPENSE'
   parentId: text("parentId"),
+  // [NOTA AI]: El campo 'bucket' está deprecado. No exigir ni mostrar en UI.
   bucket: text("bucket").$type<BudgetBucket>(), // 'NEEDS' | 'WANTS' | 'SAVINGS'
   createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch() * 1000)`),
 }, (table) => [
   index("Category_userId_kind_idx").on(table.userId, table.kind),
 ]);
 
+// [NOTA AI]: BucketReallocation está deprecado temporalmente. No usar.
 export const BucketReallocation = sqliteTable("BucketReallocation", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text("userId").notNull().references(() => User.id, { onDelete: "cascade" }),
@@ -75,11 +83,13 @@ export const Transaction = sqliteTable("Transaction", {
   description: text("description"),
   categoryId: text("categoryId").references(() => Category.id, { onDelete: "restrict" }),
   date: integer("date", { mode: "timestamp" }).notNull(),
+  // [NOTA AI]: Los siguientes campos están deprecados por el cambio de enfoque (solo ingresos y gastos simples).
   allocationMode: text("allocationMode").$type<IncomeAllocationMode>(),
   allocatedNeeds: integer("allocatedNeeds"),
   allocatedWants: integer("allocatedWants"),
   allocatedSavings: integer("allocatedSavings"),
   expenseBucket: text("expenseBucket").$type<BudgetBucket>(), // 'NEEDS' | 'WANTS' | 'SAVINGS'
+  // FIN campos deprecados
   createdAt: integer("createdAt", { mode: "timestamp" }).notNull().default(sql`(unixepoch() * 1000)`),
 }, (table) => [
   index("Transaction_userId_date_idx").on(table.userId, table.date),

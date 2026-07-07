@@ -68,11 +68,14 @@ export async function getDashboardSnapshot(userId: string, ref: Date) {
   const wantsPct = settings?.wantsPct ?? 30;
   const savingsPct = settings?.savingsPct ?? 20;
 
-  const resolveBucket = buildBucketResolver(categories);
+  // [NOTA AI]: Se desactiva la resolución de buckets por cambio de enfoque
+  // const resolveBucket = buildBucketResolver(categories);
 
   const budget = { NEEDS: 0, WANTS: 0, SAVINGS: 0 };
   const spent: Record<BucketKey, number> = { NEEDS: 0, WANTS: 0, SAVINGS: 0 };
 
+  // [NOTA AI]: Se comenta el cálculo 50/30/20.
+  /*
   for (const t of txMonth) {
     if (t.kind === "INCOME") {
       const mode = (t.allocationMode ?? "SPLIT") as IncomeAllocationMode;
@@ -94,6 +97,7 @@ export async function getDashboardSnapshot(userId: string, ref: Date) {
       spent[b] += t.amount;
     }
   }
+  */
 
   const accountStats = accounts.map((a) => {
     let income = 0;
@@ -150,12 +154,8 @@ export async function getDashboardSnapshot(userId: string, ref: Date) {
 
   const monthMovements: DashboardMonthMovement[] = txMonth.map((t): DashboardMonthMovement => ({
     ...t,
-    resolvedBucket:
-      t.kind === "EXPENSE" && t.categoryId
-        ? resolveBucket(t.categoryId)
-        : t.kind === "EXPENSE"
-          ? ((t.expenseBucket ?? "NEEDS") as BudgetBucket)
-          : null,
+    // [NOTA AI]: Se desactiva el resolveBucket.
+    resolvedBucket: null,
   }));
 
   return {

@@ -37,12 +37,10 @@ export default async function Home() {
           <div className="grid w-full gap-14 lg:grid-cols-12 lg:items-center lg:gap-12">
             <section className="lg:col-span-7">
               <h1 className="max-w-[22ch] text-[2rem] font-semibold leading-[1.05] tracking-tight text-white sm:text-5xl sm:leading-[1.02] lg:max-w-none lg:text-[3.15rem] xl:text-[3.35rem]">
-                Ingresos y gastos en orden, con la regla{" "}
-                <span className="text-emerald-400">50/30/20</span> a tu medida.
+                Ingresos y gastos en orden, a tu medida.
               </h1>
               <p className="mt-8 max-w-xl text-base leading-relaxed text-zinc-400 sm:mt-10 sm:text-lg sm:leading-relaxed">
-                Varias cuentas, categorías y subcategorías, y control por bloques: necesidades, deseos y
-                ahorros.
+                Gestión multi-cuenta, categorías y un análisis claro de tu dinero en un solo lugar.
               </p>
               <div className="mt-12 flex flex-wrap gap-3 sm:mt-14">
                 <Link
@@ -67,7 +65,7 @@ export default async function Home() {
             </section>
 
             <aside className="lg:col-span-5">
-              <BudgetDonutSlot />
+              {/* Se puede dejar oculto o reemplazar por una imagen genérica. El Donut es muy 50/30/20. */}
             </aside>
           </div>
         </div>

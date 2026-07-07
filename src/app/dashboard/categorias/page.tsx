@@ -32,15 +32,15 @@ export default async function CategoriasPage() {
       out.push({
         id: r.id,
         label: r.name,
-        detail:
-          kind === "EXPENSE" && r.bucket ? bucketLabel(r.bucket) : kind === "INCOME" ? "Ingreso" : undefined,
+        // [NOTA AI]: Se removió la visualización del bloque (bucket) por desactivación 50/30/20.
+        detail: kind === "INCOME" ? "Ingreso" : "Gasto",
       });
       const children = all.filter((c) => c.parentId === r.id);
       for (const ch of children) {
         out.push({
           id: ch.id,
           label: `↳ ${ch.name}`,
-          detail: kind === "EXPENSE" ? "Subcategoría (hereda bloque)" : "Subcategoría",
+          detail: "Subcategoría",
         });
       }
     }
@@ -56,7 +56,8 @@ export default async function CategoriasPage() {
     <div className="w-full min-w-0 space-y-8 sm:space-y-10">
       <PageHeader
         title="Categorías"
-        description="Los gastos se asignan a un bloque del presupuesto. Las subcategorías heredan el bloque del padre."
+        // [NOTA AI]: Se actualizó la descripción para remover mención a bloques.
+        description="Gestiona tus categorías de ingresos y gastos."
       />
 
       <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-2">

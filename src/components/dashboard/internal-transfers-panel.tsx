@@ -111,6 +111,7 @@ export function InternalTransfersPanel({
 
   return (
     <div className="space-y-5">
+      {/* [NOTA AI]: Se desactivó el tab de bloques 50/30/20
       <div className="flex gap-1 rounded-lg border border-zinc-800/80 bg-zinc-950/50 p-1">
         <button
           type="button"
@@ -133,6 +134,7 @@ export function InternalTransfersPanel({
           Entre bloques
         </button>
       </div>
+      */}
 
       {tab === "accounts" ? (
         <form onSubmit={submitTransfer} className="space-y-4">
@@ -216,7 +218,9 @@ export function InternalTransfersPanel({
             <p className="text-center text-xs text-zinc-500">Necesitas al menos dos cuentas.</p>
           ) : null}
         </form>
-      ) : (
+      ) : null
+      /* [NOTA AI]: Se desactivó el formulario de bloques 50/30/20.
+      (
         <div className="space-y-4">
           <form onSubmit={submitBuckets} className="space-y-4">
             <p className="text-xs leading-relaxed text-zinc-500">
@@ -312,7 +316,8 @@ export function InternalTransfersPanel({
             </div>
           ) : null}
         </div>
-      )}
+      )
+      */
     </div>
   );
 }

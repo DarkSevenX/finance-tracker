@@ -62,8 +62,9 @@ export function TransactionExpenseForm({
   }, [categories]);
 
   const filteredCats = useMemo(() => {
-    return catList.filter((c) => c.bucket === bucket);
-  }, [catList, bucket]);
+    // [NOTA AI]: Se quita el filtrado por bloque para mostrar todas las categorías
+    return catList;
+  }, [catList]);
 
   useEffect(() => {
     if (categoryId && !filteredCats.some((c) => c.id === categoryId)) {
@@ -91,7 +92,7 @@ export function TransactionExpenseForm({
       toast.success("Gasto registrado.");
       e.currentTarget.reset();
       setCategoryId("");
-      setBucket("NEEDS");
+      // setBucket("NEEDS");
       router.refresh();
     }
   }
@@ -131,6 +132,7 @@ export function TransactionExpenseForm({
         />
       </div>
 
+      {/* [NOTA AI]: Se ocultó el selector de bloques (50/30/20)
       <div className="field-row space-y-2">
         <div className="flex flex-wrap justify-center gap-2 sm:flex-nowrap">
           {BUCKET_ROWS.map(({ id, label, sub, Icon, active }) => {
@@ -157,6 +159,7 @@ export function TransactionExpenseForm({
           })}
         </div>
       </div>
+      */}
 
       <div className="field-row text-left">
         <label className={labelClass}>Categoría (opcional)</label>

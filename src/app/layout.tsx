@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Boo Money — 50/30/20",
+  title: "Boo Money",
   description: "Boo Money: ingresos, gastos y presupuesto con cuentas y categorías.",
   applicationName: "Boo Money",
   appleWebApp: {

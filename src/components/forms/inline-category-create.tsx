@@ -102,7 +102,8 @@ export function InlineCategoryCreateExpense({
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setPending(true);
-    const res = await createCategory({ name, kind: "EXPENSE", bucket });
+    // [NOTA AI]: Se envía bucket nulo/por defecto ya que se desactivó la funcionalidad.
+    const res = await createCategory({ name, kind: "EXPENSE", bucket: undefined });
     setPending(false);
     if ("error" in res && res.error) {
       toast.error(res.error);
@@ -162,6 +163,7 @@ export function InlineCategoryCreateExpense({
               autoFocus
             />
           </div>
+          {/* [NOTA AI]: Se desactivó el selector de bloques 50/30/20.
           <div>
             <label className={labelClass}>Bloque del presupuesto</label>
             <select
@@ -176,6 +178,7 @@ export function InlineCategoryCreateExpense({
               ))}
             </select>
           </div>
+          */}
           <button type="submit" disabled={pending} className={cn(btnPrimaryClass, "w-full")}>
             {pending ? "Creando…" : "Crear y usar"}
           </button>

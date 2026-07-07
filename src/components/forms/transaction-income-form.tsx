@@ -42,7 +42,8 @@ export function TransactionIncomeForm({
       accountId: String(fd.get("accountId") ?? ""),
       categoryId: cid || null,
       date: String(fd.get("date") ?? ""),
-      allocationMode: String(fd.get("allocationMode") ?? "SPLIT") as IncomeAllocationMode,
+      // [NOTA AI]: Se fuerza SPLIT por defecto ya que se ocultó la UI.
+      allocationMode: "SPLIT",
     });
     setPending(false);
     if ("error" in res && res.error) {
@@ -143,6 +144,7 @@ export function TransactionIncomeForm({
         </select>
       </div>
 
+      {/* [NOTA AI]: Se desactivó el selector de asignación 50/30/20.
       <div className="field-row text-left">
         <label className={labelClass}>Cómo cuenta para tu presupuesto</label>
         <select name="allocationMode" className={fieldClass}>
@@ -153,6 +155,7 @@ export function TransactionIncomeForm({
           ))}
         </select>
       </div>
+      */}
 
       <button type="submit" disabled={pending} className={cn(btnPrimaryClass, "w-full")}>
         {pending ? "Guardando…" : "Registrar ingreso"}

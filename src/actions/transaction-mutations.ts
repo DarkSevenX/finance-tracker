@@ -47,13 +47,16 @@ export async function createIncome(input: {
   const wantsPct = settings?.wantsPct ?? 30;
   const savingsPct = settings?.savingsPct ?? 20;
 
-  const { needs, wants, savings } = splitIncome(
-    amount,
-    input.allocationMode,
-    needsPct,
-    wantsPct,
-    savingsPct
-  );
+
+
+  // [NOTA AI]: Se desactiva la distribución 50/30/20.
+  // const { needs, wants, savings } = splitIncome(
+  //   amount,
+  //   input.allocationMode,
+  //   needsPct,
+  //   wantsPct,
+  //   savingsPct
+  // );
 
   const title = input.title?.trim() || "Ingreso";
   const description = input.description?.trim() || null;
@@ -69,9 +72,10 @@ export async function createIncome(input: {
     categoryId: cid,
     date,
     allocationMode: input.allocationMode,
-    allocatedNeeds: needs,
-    allocatedWants: wants,
-    allocatedSavings: savings,
+    // [NOTA AI]: Se desactivan los montos distribuidos.
+    allocatedNeeds: null,
+    allocatedWants: null,
+    allocatedSavings: null,
   });
 
   revalidatePath("/dashboard");
@@ -118,6 +122,10 @@ export async function createExpense(input: {
 
   const date = new Date(input.date);
 
+
+
+  // [NOTA AI]: Se desactiva la validación de fondos por bloques.
+  /*
   try {
     const { remaining, resolveBucket } = await computeMonthBucketEnvelope(
       session.user.id,
@@ -138,6 +146,7 @@ export async function createExpense(input: {
         : "No se pudo validar el presupuesto por bloques.";
     return { error: msg };
   }
+  */
 
   const title = input.title?.trim() || "Gasto";
   const description = input.description?.trim() || null;

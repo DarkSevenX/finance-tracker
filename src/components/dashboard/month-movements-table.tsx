@@ -269,12 +269,14 @@ export function MonthMovementsTable({
                   <td className="px-4 py-3 text-zinc-500">{t.accountName}</td>
                   <td className="max-w-[220px] px-4 py-3 text-xs text-zinc-500">
                     {t.categoryName ?? "Sin categoría"}
+                    {/* [NOTA AI]: Se ocultó el display de allocationMode y resolvedBucket
                     {t.kind === "INCOME" && t.allocationMode
                       ? ` · ${allocationLabel(t.allocationMode)}`
                       : null}
                     {t.kind === "EXPENSE" && t.resolvedBucket
                       ? ` · ${bucketLabel(t.resolvedBucket)}`
                       : null}
+                    */}
                   </td>
                   <td
                     className={`px-4 py-3 text-right font-medium tabular-nums ${
