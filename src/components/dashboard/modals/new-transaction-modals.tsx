@@ -13,7 +13,7 @@ export function NewTransactionModals({
 }: {
   accounts: { id: string; name: string }[];
   expenseCategories: { id: string; label: string; bucket: any }[];
-  incomeCategories: { id: string; label: string; }[];
+  incomeCategories: { id: string; name: string; }[];
 }) {
   const [expenseOpen, setExpenseOpen] = useState(false);
   const [incomeOpen, setIncomeOpen] = useState(false);

@@ -39,12 +39,10 @@ export function IncomeExpenseDonut({
         <li className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_0_1px_rgba(0,0,0,0.2)]" />
           <span className="text-zinc-500">Ingresos</span>
-          <span className="tabular-nums text-zinc-300">{formatCOP(income)}</span>
         </li>
         <li className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-rose-400 shadow-[0_0_0_1px_rgba(0,0,0,0.2)]" />
           <span className="text-zinc-500">Gastos</span>
-          <span className="tabular-nums text-zinc-300">{formatCOP(expense)}</span>
         </li>
       </ul>
     </div>

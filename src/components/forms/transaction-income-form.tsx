@@ -41,6 +41,7 @@ export function TransactionIncomeForm({
     const amount = parseCOPInput(String(fd.get("amount") ?? "0"));
     const cid = String(fd.get("categoryId") ?? "").trim();
     const res = await createIncome({
+      title: String(fd.get("title") ?? "").trim(),
       amount,
       accountId: String(fd.get("accountId") ?? ""),
       categoryId: cid || null,
@@ -92,6 +93,16 @@ export function TransactionIncomeForm({
           autoComplete="off"
           className={amountInputClass}
           autoFocus={compact}
+        />
+      </div>
+
+      <div className="field-row text-left">
+        <label className={labelClass}>Título</label>
+        <input
+          name="title"
+          required
+          placeholder="Ej: Pago cliente"
+          className={fieldClass}
         />
       </div>
 

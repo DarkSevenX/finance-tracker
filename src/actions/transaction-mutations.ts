@@ -182,4 +182,55 @@ export async function deleteTransaction(id: string) {
   return { ok: true as const };
 }
 
+export async function updateTransaction(id: string, input: {
+  title: string;
+  amount: number;
+  accountId: string;
+  categoryId: string | null;
+  date: string;
+}) {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "No autorizado" as const };
 
+  const txResult = await db.select().from(Transaction)
+    .where(and(eq(Transaction.id, id), eq(Transaction.userId, session.user.id)))
+    .limit(1);
+    
+  if (!txResult[0]) return { error: "Movimiento no encontrado." as const };
+  const tx = txResult[0];
+
+  const amount = Math.round(input.amount);
+  if (amount <= 0) return { error: "El monto debe ser mayor a 0." as const };
+
+  const accResult = await db.select().from(FinancialAccount)
+    .where(and(eq(FinancialAccount.id, input.accountId), eq(FinancialAccount.userId, session.user.id)))
+    .limit(1);
+  if (!accResult[0]) return { error: "Cuenta inválida." as const };
+
+  const cid = input.categoryId?.trim() || null;
+  if (cid) {
+    if (tx.kind === "TRANSFER") {
+      return { error: "Los traslados no usan estas categorías." as const };
+    }
+    const catResult = await db.select().from(Category)
+      .where(and(eq(Category.id, cid), eq(Category.userId, session.user.id), eq(Category.kind, tx.kind)))
+      .limit(1);
+    if (!catResult[0]) return { error: "Categoría inválida." as const };
+  }
+
+  await db.update(Transaction)
+    .set({
+      title: input.title.trim() || (tx.kind === "INCOME" ? "Ingreso" : "Gasto"),
+      amount,
+      accountId: input.accountId,
+      categoryId: cid,
+      date: new Date(input.date),
+      expenseBucket: cid ? null : tx.expenseBucket,
+    })
+    .where(and(eq(Transaction.id, id), eq(Transaction.userId, session.user.id)));
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/movimientos");
+  revalidatePath("/dashboard/cuentas");
+  return { ok: true as const };
+}

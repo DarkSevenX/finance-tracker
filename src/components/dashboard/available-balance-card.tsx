@@ -1,7 +1,7 @@
 import { Wallet } from "lucide-react";
 import { formatCOP } from "@/lib/money";
 import { cn } from "@/lib/cn";
-import { Card } from "@/components/ui/card";
+import { BorderGlow } from "@/components/reactbits/BorderGlow";
 
 /** `true`: anillo alrededor del icono + halos de fondo. `false`: tarjeta más sobria (solo icono y datos). */
 const SHOW_AVAILABLE_BALANCE_EXTRAS = true;
@@ -53,13 +53,19 @@ export function AvailableBalanceCard({
   const spent = spentShare(totalIncome, totalExpense);
 
   return (
-    <Card
+    <BorderGlow
+      animated={true}
+      backgroundColor="#09090b"
+      glowColor="160 84 39"
+      colors={["#ffffff", "#10b981", "#047857"]}
       className={cn(
-        "relative flex flex-col justify-center overflow-hidden p-6 sm:p-8",
-        SHOW_AVAILABLE_BALANCE_EXTRAS &&
-          "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-emerald-500/35 before:to-transparent"
+        "rounded-2xl border border-zinc-800/90 bg-zinc-950 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]",
+        "relative overflow-hidden"
       )}
     >
+      {SHOW_AVAILABLE_BALANCE_EXTRAS && (
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/35 to-transparent" />
+      )}
       {SHOW_AVAILABLE_BALANCE_EXTRAS ? (
         <>
           <div
@@ -73,7 +79,8 @@ export function AvailableBalanceCard({
         </>
       ) : null}
 
-      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
+      <div className="relative z-10 flex h-full flex-col justify-center p-6 sm:p-8">
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
         <div
           className={cn(
             "relative mx-auto flex shrink-0 items-center justify-center rounded-xl border border-zinc-800/90 sm:mx-0",
@@ -155,41 +162,26 @@ export function AvailableBalanceCard({
             {spent.label}
           </span>
         </div>
-        <div
-          className="h-2 w-full overflow-hidden rounded-full bg-zinc-800/90 ring-1 ring-white/[0.04]"
-          role="progressbar"
-          aria-valuenow={Math.round(Math.min(100, spent.pctRaw))}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label={`Porcentaje gastado respecto al ingreso: ${spent.label}`}
-        >
-          <div
-            className={cn(
-              "h-full rounded-full transition-[width] duration-500 ease-out",
-              spent.pctRaw < SPENT_RED_FROM_PCT && "bg-emerald-500/80",
-              spent.pctRaw >= SPENT_RED_FROM_PCT &&
-                !spent.overBudget &&
-                "bg-rose-500/85",
-              spent.overBudget && "bg-gradient-to-r from-rose-500 to-amber-500"
-            )}
-            style={{ width: `${spent.barWidth}%` }}
-          />
-        </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center justify-center gap-2 border-t border-zinc-800/70 pt-4 text-[11px] text-zinc-500 sm:justify-start">
-        {accountCount > 0 ? (
-          <span className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-800/80 bg-zinc-950/40 px-2.5 py-1 tabular-nums text-zinc-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" aria-hidden />
-            {accountCount === 1 ? "1 cuenta" : `${accountCount} cuentas`}
-          </span>
-        ) : (
-          <span className="text-zinc-600">Sin cuentas aún</span>
-        )}
-        <span className="hidden h-3 w-px bg-zinc-800 sm:inline" aria-hidden />
-        <span className="text-zinc-600">Acumulado histórico</span>
+      <div className="mt-6 grid grid-cols-2 gap-4 border-t border-zinc-800/80 pt-5">
+        <div>
+          <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-500">
+            <svg xmlns="http://www.w3.org/2000/svg" className="size-3.5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+            Ingresos
+          </div>
+          <p className="mt-1 text-base font-semibold tabular-nums text-zinc-100">{formatCOP(totalIncome)}</p>
+        </div>
+        <div>
+          <div className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-500">
+            <svg xmlns="http://www.w3.org/2000/svg" className="size-3.5 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+            Gastos
+          </div>
+          <p className="mt-1 text-base font-semibold tabular-nums text-zinc-100">{formatCOP(totalExpense)}</p>
+        </div>
       </div>
-    </Card>
+      </div>
+    </BorderGlow>
   );
 }
 

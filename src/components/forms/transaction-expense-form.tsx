@@ -82,6 +82,7 @@ export function TransactionExpenseForm({
     const amount = parseCOPInput(String(fd.get("amount") ?? "0"));
     const cid = String(fd.get("categoryId") ?? "").trim();
     const res = await createExpense({
+      title: String(fd.get("title") ?? "").trim(),
       amount,
       accountId: String(fd.get("accountId") ?? ""),
       categoryId: cid || null,
@@ -133,6 +134,16 @@ export function TransactionExpenseForm({
           autoComplete="off"
           className={amountInputClass}
           autoFocus={compact}
+        />
+      </div>
+
+      <div className="field-row text-left">
+        <label className={labelClass}>Título</label>
+        <input
+          name="title"
+          required
+          placeholder="Ej: Supermercado"
+          className={fieldClass}
         />
       </div>
 
